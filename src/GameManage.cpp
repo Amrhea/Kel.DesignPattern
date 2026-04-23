@@ -71,8 +71,8 @@ void GameManager::RunSession() {
 
     const Hand hand = BuildSampleHand(checkerNumber);
 
-    std::cout << "\nSample hand for checker " << checkerNumber << ":" << std::endl;
-    handHandler.ShowCards(hand);
+    // std::cout << "\nSample hand for checker " << checkerNumber << ":" << std::endl;
+    // handHandler.ShowCards(hand);
 
     std::cout << "\nRunning chain of responsibility..." << std::endl;
     if (!handHandler.Handle(hand)) {
