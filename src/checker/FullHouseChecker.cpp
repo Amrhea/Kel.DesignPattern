@@ -1,5 +1,6 @@
 #include <iostream>
 #include "../lib/checker/FullHouseChecker.h"
+#include "../lib/PokerHandUtils.h"
 
 bool FullHouseChecker::Check(const Hand& hand)
 {
@@ -13,6 +14,8 @@ bool FullHouseChecker::Check(const Hand& hand)
 
 bool FullHouseChecker::IsFullHouse(const Hand& hand)
 {
-    // Full house is three of a kind + a pair
-    return false;
+    return hand.GetCardCount() == 5
+        && PokerHandUtils::HasCount(hand, 3)
+        && PokerHandUtils::HasCount(hand, 2)
+        && !PokerHandUtils::IsFlush(hand);
 }

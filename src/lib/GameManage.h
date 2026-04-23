@@ -10,14 +10,14 @@
 class GameManager
 {
     private:
-        HandGenerator handGenerator;
-        HandPlayer handPlayer;
-        ScoringRule scoringRule;
-        BlindRule blindRule;
-        RewardRule rewardRule;
+        HandGenerator* handGenerator;
+        HandPlayer* handPlayer;
+        ScoringRule* scoringRule;
+        BlindRule* blindRule;
+        RewardRule* rewardRule;
 
     public:
-        GameManager(/* args */);
+        GameManager();
         ~GameManager();
         void RunSession();
 };

@@ -1,12 +1,31 @@
 #pragma once
 
 #include "IPokerHandChecker.h"
+#include <string>
+#include <vector>
+
+
+#include <iostream>
+
+#include "checker/FiveOfKindChecker.h"
+#include "checker/FourOfKindChecker.h"
+#include "checker/FlushChecker.h"
+#include "checker/FullHouseChecker.h"
+#include "checker/HighCardChecker.h"
+#include "checker/PairChecker.h"
+#include "checker/RoyalFlushChecker.h"
+#include "checker/StraightChecker.h"
+#include "checker/StraightFlushChecker.h"
+#include "checker/ThreeOfKindChecker.h"
+#include "checker/TwoPairChecker.h"
+#include "checker/FlushHouseChecker.h"
 
 // Entry point untuk Chain of Responsibility
 class HandHandler
 {
 private:
     IPokerHandChecker* head;
+    std::vector<std::string> checkerOrder;
 
 public:
     HandHandler();
@@ -20,4 +39,10 @@ public:
 
     // Method untuk menampilkan semua kartu
     void ShowCards(const Hand& hand) const;
+
+    // Method untuk menampilkan urutan checker dari paling mudah ke paling sulit muncul
+    void ShowCheckerOrder() const;
+
+    // Method untuk mendapatkan nama checker berdasarkan nomor urutan
+    std::string GetCheckerNameByOrder(int order) const;
 };

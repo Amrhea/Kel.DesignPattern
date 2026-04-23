@@ -1,18 +1,4 @@
-#include "HandHandler.h"
-#include <iostream>
-
-#include "checker/FiveOfKindChecker.h"
-#include "checker/FourOfKindChecker.h"
-#include "checker/FlushChecker.h"
-#include "checker/FullHouseChecker.h"
-#include "checker/HighCardChecker.h"
-#include "checker/PairChecker.h"
-#include "checker/RoyalFlushChecker.h"
-#include "checker/StraightChecker.h"
-#include "checker/StraightFlushChecker.h"
-#include "checker/ThreeOfKindChecker.h"
-#include "checker/TwoPairChecker.h"
-#include "checker/FlushHouseChecker.h"
+#include "lib/HandHandler.h"
 
 HandHandler::HandHandler() : head(nullptr) {
     // Inisialisasi Chain of Responsibility
@@ -30,7 +16,10 @@ HandHandler::HandHandler() : head(nullptr) {
     IPokerHandChecker* pair = new PairChecker();
     IPokerHandChecker* highCard = new HighCardChecker();
 
-    // Membangun chain
+    // Membangun chain dari paling rare sampai common
+    /**
+     * five of kind -> royal flush -> straight flush -> four of kind -> flush house -> full house -> flush -> straight -> three of kind -> two pair -> pair -> high card
+     */
     head = fiveOfKind;
     fiveOfKind->SetNext(royalFlush);
     royalFlush->SetNext(straightFlush);
@@ -43,6 +32,21 @@ HandHandler::HandHandler() : head(nullptr) {
     threeOfKind->SetNext(twoPair);
     twoPair->SetNext(pair);
     pair->SetNext(highCard);
+
+    checkerOrder = {
+        "High Card",
+        "Pair",
+        "Two Pair",
+        "Three of a Kind",
+        "Straight",
+        "Flush",
+        "Full House",
+        "Flush House",
+        "Four of a Kind",
+        "Straight Flush",
+        "Royal Flush",
+        "Five of a Kind"
+    };
 }
 
 HandHandler::~HandHandler() {
@@ -55,7 +59,7 @@ HandHandler::~HandHandler() {
     }
 }
 
-// Method untuk menambahkan checker ke dalam chain (untuk dinamis)
+// Method untuk menambahkan checker ke dalam chain
 void HandHandler::AddChecker(IPokerHandChecker* checker) {
     if (head == nullptr) {
         head = checker;
@@ -82,4 +86,18 @@ void HandHandler::ShowCards(const Hand& hand) const {
     for (int i = 0; i < hand.GetCardCount(); ++i) {
         std::cout << "Card[" << i << "]: " << hand.GetCard(i) << std::endl;
     }
+}
+
+void HandHandler::ShowCheckerOrder() const {
+    for (size_t i = 0; i < checkerOrder.size(); ++i) {
+        std::cout << (i + 1) << ". " << checkerOrder[i] << std::endl;
+    }
+}
+
+std::string HandHandler::GetCheckerNameByOrder(int order) const {
+    if (order < 1 || order > static_cast<int>(checkerOrder.size())) {
+        return "";
+    }
+
+    return checkerOrder[order - 1];
 }

@@ -1,5 +1,6 @@
 #include <iostream>
 #include "../lib/checker/FourOfKindChecker.h"
+#include "../lib/PokerHandUtils.h"
 
 bool FourOfKindChecker::Check(const Hand& hand)
 {
@@ -13,6 +14,6 @@ bool FourOfKindChecker::Check(const Hand& hand)
 
 bool FourOfKindChecker::IsFourOfKind(const Hand& hand)
 {
-    // Four of a kind is four cards of the same rank
-    return false;
+    return hand.GetCardCount() == 5
+        && PokerHandUtils::HasCount(hand, 4);
 }

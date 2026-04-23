@@ -1,5 +1,6 @@
 #include <iostream>
 #include "../lib/checker/ThreeOfKindChecker.h"
+#include "../lib/PokerHandUtils.h"
 
 bool ThreeOfKindChecker::Check(const Hand& hand)
 {
@@ -13,6 +14,7 @@ bool ThreeOfKindChecker::Check(const Hand& hand)
 
 bool ThreeOfKindChecker::IsThreeOfKind(const Hand& hand)
 {
-    // Three of a kind is three cards of the same rank
-    return false;
+    return hand.GetCardCount() == 5
+        && PokerHandUtils::HasCount(hand, 3)
+        && !PokerHandUtils::HasCount(hand, 2);
 }

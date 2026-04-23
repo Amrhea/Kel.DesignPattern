@@ -1,5 +1,6 @@
 #include <iostream>
 #include "../lib/checker/TwoPairChecker.h"
+#include "../lib/PokerHandUtils.h"
 
 bool TwoPairChecker::Check(const Hand& hand)
 {
@@ -13,6 +14,6 @@ bool TwoPairChecker::Check(const Hand& hand)
 
 bool TwoPairChecker::IsTwoPair(const Hand& hand)
 {
-    // Two pair is two different pairs
-    return false;
+    return hand.GetCardCount() == 5
+        && PokerHandUtils::CountRanksWithOccurrences(hand, 2) == 2;
 }

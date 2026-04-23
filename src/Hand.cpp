@@ -1,4 +1,4 @@
-#include "Hand.h"
+#include "lib/Hand.h"
 #include <algorithm>
 #include <iostream>
 
