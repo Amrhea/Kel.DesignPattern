@@ -1,5 +1,6 @@
 #include <iostream>
 #include "../lib/checker/FlushChecker.h"
+#include "../lib/PokerHandUtils.h"
 
 bool FlushChecker::Check(const Hand& hand)
 {
@@ -13,6 +14,5 @@ bool FlushChecker::Check(const Hand& hand)
 
 bool FlushChecker::IsFlush(const Hand& hand)
 {
-    // To be implemented: check if all 5 cards have the same suit
-    return false;
+    return PokerHandUtils::IsFlush(hand) && !PokerHandUtils::IsStraight(hand);
 }

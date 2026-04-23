@@ -1,5 +1,6 @@
 #include <iostream>
 #include "../lib/checker/StraightChecker.h"
+#include "../lib/PokerHandUtils.h"
 
 bool StraightChecker::Check(const Hand& hand)
 {
@@ -13,7 +14,5 @@ bool StraightChecker::Check(const Hand& hand)
 
 bool StraightChecker::IsStright(const Hand& hand)
 {
-    // Straight is five consecutive cards
-    // To be implemented
-    return false;
+    return PokerHandUtils::IsStraight(hand) && !PokerHandUtils::IsFlush(hand);
 }

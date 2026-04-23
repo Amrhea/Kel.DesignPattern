@@ -1,5 +1,6 @@
 #include <iostream>
 #include "../lib/checker/PairChecker.h"
+#include "../lib/PokerHandUtils.h"
 
 bool PairChecker::Check(const Hand& hand)
 {
@@ -13,6 +14,7 @@ bool PairChecker::Check(const Hand& hand)
 
 bool PairChecker::IsPair(const Hand& hand)
 {
-    // Pair is two cards of the same rank
-    return false;
+    return hand.GetCardCount() == 5
+        && PokerHandUtils::CountRanksWithOccurrences(hand, 2) == 1
+        && !PokerHandUtils::HasCount(hand, 3);
 }

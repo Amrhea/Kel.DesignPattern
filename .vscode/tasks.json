@@ -1,0 +1,44 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build main.exe",
+            "type": "process",
+            "command": "D:/Msys2/Msys2_64/mingw64/bin/g++.exe",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-std=c++17",
+                "-Isrc/lib",
+                "src/main.cpp",
+                "src/Hand.cpp",
+                "src/HandHandler.cpp",
+                "src/GameManage.cpp",
+                "src/checker/FiveOfKindChecker.cpp",
+                "src/checker/FlushChecker.cpp",
+                "src/checker/FlushHouseChecker.cpp",
+                "src/checker/FourOfKindChecker.cpp",
+                "src/checker/FullHouseChecker.cpp",
+                "src/checker/HighCardChecker.cpp",
+                "src/checker/PairChecker.cpp",
+                "src/checker/RoyalFlushChecker.cpp",
+                "src/checker/StraightChecker.cpp",
+                "src/checker/StraightFlushChecker.cpp",
+                "src/checker/ThreeOfKindChecker.cpp",
+                "src/checker/TwoPairChecker.cpp",
+                "-o",
+                "src/main.exe"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
+        }
+    ]
+}

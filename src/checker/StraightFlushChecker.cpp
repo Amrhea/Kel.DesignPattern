@@ -1,5 +1,6 @@
 #include <iostream>
 #include "../lib/checker/StraightFlushChecker.h"
+#include "../lib/PokerHandUtils.h"
 
 bool StraightFlushChecker::Check(const Hand& hand)
 {
@@ -13,7 +14,7 @@ bool StraightFlushChecker::Check(const Hand& hand)
 
 bool StraightFlushChecker::IsStraightFlush(const Hand& hand)
 {
-    // Straight flush is both a straight and a flush
-    // To be implemented with helper checkers
-    return false;
+    return PokerHandUtils::IsStraight(hand)
+        && PokerHandUtils::IsFlush(hand)
+        && !PokerHandUtils::IsRoyalFlush(hand);
 }

@@ -1,5 +1,6 @@
 #include <iostream>
 #include "../lib/checker/RoyalFlushChecker.h"
+#include "../lib/PokerHandUtils.h"
 
 bool RoyalFlushChecker::Check(const Hand& hand)
 {
@@ -13,7 +14,5 @@ bool RoyalFlushChecker::Check(const Hand& hand)
 
 bool RoyalFlushChecker::IsRoyalFlush(const Hand& hand)
 {
-    // Royal flush is A, K, Q, J, 10 of the same suit
-    // Highest straight flush
-    return false;
+    return PokerHandUtils::IsRoyalFlush(hand);
 }

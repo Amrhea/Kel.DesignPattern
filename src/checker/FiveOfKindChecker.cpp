@@ -1,5 +1,6 @@
 #include <iostream>
 #include "../lib/checker/FiveOfKindChecker.h"
+#include "../lib/PokerHandUtils.h"
 
 bool FiveOfKindChecker::Check(const Hand& hand)
 {
@@ -13,7 +14,6 @@ bool FiveOfKindChecker::Check(const Hand& hand)
 
 bool FiveOfKindChecker::IsFiveOfKind(const Hand& hand)
 {
-    // Five of a kind is only possible with wildcards/jokers
-    // Four of a kind plus a wildcard
-    return false;
+    return hand.GetCardCount() == 5
+        && PokerHandUtils::HasCount(hand, 5);
 }

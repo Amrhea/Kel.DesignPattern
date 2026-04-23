@@ -1,5 +1,6 @@
 #include <iostream>
 #include "../lib/checker/HighCardChecker.h"
+#include "../lib/PokerHandUtils.h"
 
 bool HighCardChecker::Check(const Hand& hand)
 {
@@ -13,7 +14,11 @@ bool HighCardChecker::Check(const Hand& hand)
 
 bool HighCardChecker::IsHighCard(const Hand& hand)
 {
-    // High card is the default case when no other hand is formed
-    // This checker should be at the end of the chain
-    return true;
+    return hand.GetCardCount() == 5
+        && !PokerHandUtils::HasCount(hand, 2)
+        && !PokerHandUtils::HasCount(hand, 3)
+        && !PokerHandUtils::HasCount(hand, 4)
+        && !PokerHandUtils::HasCount(hand, 5)
+        && !PokerHandUtils::IsStraight(hand)
+        && !PokerHandUtils::IsFlush(hand);
 }

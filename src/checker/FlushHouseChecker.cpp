@@ -1,5 +1,6 @@
 #include <iostream>
 #include "../lib/checker/FlushHouseChecker.h"
+#include "../lib/PokerHandUtils.h"
 
 bool FlushHouseChecker::Check(const Hand& hand)
 {
@@ -13,7 +14,8 @@ bool FlushHouseChecker::Check(const Hand& hand)
 
 bool FlushHouseChecker::IsFlushHouse(const Hand& hand)
 {
-    // Flush house: flush with all cards of the same suit
-    // and containing exactly one pair
-    return false;
+    return hand.GetCardCount() == 5
+        && PokerHandUtils::IsFlush(hand)
+        && PokerHandUtils::HasCount(hand, 3)
+        && PokerHandUtils::HasCount(hand, 2);
 }
