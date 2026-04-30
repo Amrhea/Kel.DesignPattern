@@ -190,7 +190,8 @@ Proyek ini dirancang untuk mudah dikembangkan:
 
 ## Author
 
-- **syahrandywaskito** - Initial work
+- **syahrandywaskito** - System Programmer
+- **Amrhea** - Mechanic Programmer
 
 ## License
 
