@@ -80,7 +80,9 @@ Karena itu, pattern seperti Strategy atau Factory belum bisa dihitung sebagai im
 
 ## Class Diagram
 
-Diagram berikut memfokuskan struktur yang benar-benar relevan terhadap pattern utama.
+Diagram dipecah menjadi dua bagian agar lebih mudah dibaca di GitHub: diagram inti untuk Chain of Responsibility, lalu diagram pendukung untuk konteks aplikasi.
+
+### Diagram Inti: Chain of Responsibility
 
 ```mermaid
 classDiagram
@@ -112,27 +114,6 @@ classDiagram
         +GetCheckerNameByOrder(int) string
     }
 
-    class GameManager {
-        -HandGenerator* handGenerator
-        -HandPlayer* handPlayer
-        -ScoringRule* scoringRule
-        -BlindRule* blindRule
-        -RewardRule* rewardRule
-        +RunSession()
-    }
-
-    class PokerHandUtils {
-        <<utility>>
-        +GetRanks(const Hand&) vector~int~
-        +GetSuits(const Hand&) vector~int~
-        +GetRankCounts(const Hand&) array~int,13~
-        +HasCount(const Hand&, int) bool
-        +CountRanksWithOccurrences(const Hand&, int) int
-        +IsFlush(const Hand&) bool
-        +IsStraight(const Hand&) bool
-        +IsRoyalFlush(const Hand&) bool
-    }
-
     class FiveOfKindChecker
     class RoyalFlushChecker
     class StraightFlushChecker
@@ -145,19 +126,6 @@ classDiagram
     class TwoPairChecker
     class PairChecker
     class HighCardChecker
-
-    class HandGenerator
-    class HandPlayer
-    class ScoringRule
-    class BlindRule
-    class RewardRule
-
-    GameManager --> HandHandler : uses
-    GameManager --> HandGenerator : placeholder
-    GameManager --> HandPlayer : placeholder
-    GameManager --> ScoringRule : placeholder
-    GameManager --> BlindRule : placeholder
-    GameManager --> RewardRule : placeholder
 
     HandHandler --> IPokerHandChecker : head
     IPokerHandChecker --> Hand : checks
@@ -175,20 +143,55 @@ classDiagram
     TwoPairChecker --|> IPokerHandChecker
     PairChecker --|> IPokerHandChecker
     HighCardChecker --|> IPokerHandChecker
-
-    FiveOfKindChecker ..> PokerHandUtils
-    RoyalFlushChecker ..> PokerHandUtils
-    StraightFlushChecker ..> PokerHandUtils
-    FourOfKindChecker ..> PokerHandUtils
-    FlushHouseChecker ..> PokerHandUtils
-    FullHouseChecker ..> PokerHandUtils
-    FlushChecker ..> PokerHandUtils
-    StraightChecker ..> PokerHandUtils
-    ThreeOfKindChecker ..> PokerHandUtils
-    TwoPairChecker ..> PokerHandUtils
-    PairChecker ..> PokerHandUtils
-    HighCardChecker ..> PokerHandUtils
 ```
+
+### Diagram Pendukung: Utility dan Placeholder
+
+```mermaid
+classDiagram
+    class GameManager {
+        -HandGenerator* handGenerator
+        -HandPlayer* handPlayer
+        -ScoringRule* scoringRule
+        -BlindRule* blindRule
+        -RewardRule* rewardRule
+        +RunSession()
+    }
+
+    class HandHandler {
+        -IPokerHandChecker* head
+        -vector~string~ checkerOrder
+        +AddChecker(IPokerHandChecker*)
+        +Handle(const Hand&) bool
+    }
+
+    class PokerHandUtils {
+        <<utility>>
+        +GetRanks(const Hand&) vector~int~
+        +GetSuits(const Hand&) vector~int~
+        +GetRankCounts(const Hand&) array~int,13~
+        +HasCount(const Hand&, int) bool
+        +CountRanksWithOccurrences(const Hand&, int) int
+        +IsFlush(const Hand&) bool
+        +IsStraight(const Hand&) bool
+        +IsRoyalFlush(const Hand&) bool
+    }
+
+    class HandGenerator
+    class HandPlayer
+    class ScoringRule
+    class BlindRule
+    class RewardRule
+
+    GameManager --> HandHandler : uses
+    GameManager --> HandGenerator : placeholder
+    GameManager --> HandPlayer : placeholder
+    GameManager --> ScoringRule : placeholder
+    GameManager --> BlindRule : placeholder
+    GameManager --> RewardRule : placeholder
+```
+
+Checker konkret memakai `PokerHandUtils` sebagai helper evaluasi hand, tetapi dependensi itu tidak digambar satu per satu agar diagram utama tetap ringkas.
 
 ## Kesimpulan
 
