@@ -2,6 +2,12 @@
 
 Sebuah aplikasi C++ untuk mendeteksi tipe poker hand menggunakan **Chain of Responsibility Pattern**.
 
+## Dokumentasi Analisis
+
+Untuk analisis pattern yang lebih rapi dan class diagram, lihat:
+
+- [Analisis Design Pattern](docs/design-pattern-analysis.md)
+
 ## Deskripsi
 
 Proyek ini mengimplementasikan desain pattern **Chain of Responsibility** untuk mengecek dan mendeteksi 12 tipe poker hand secara berurutan, dari yang paling langka ke yang paling umum.
