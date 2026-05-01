@@ -35,7 +35,10 @@ public:
     void AddChecker(IPokerHandChecker* checker);
 
     // Method untuk menangani permintaan pengecekan hand
-    bool Handle(const Hand& hand);
+    ChosenHand Handle(const Hand& hand);
+
+    // Method untuk mengevaluasi hand dan memberikan hasil akhir
+    ChosenHand evaluate(const Hand& hand);
 
     // Method untuk menampilkan semua kartu
     void ShowCards(const Hand& hand) const;

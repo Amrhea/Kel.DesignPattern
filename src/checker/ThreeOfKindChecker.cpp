@@ -2,14 +2,14 @@
 #include "../lib/checker/ThreeOfKindChecker.h"
 #include "../lib/PokerHandUtils.h"
 
-bool ThreeOfKindChecker::Check(const Hand& hand)
+ChosenHand ThreeOfKindChecker::Check(const Hand& hand)
 {
     if (IsThreeOfKind(hand))
     {
         std::cout << "Detected THREE OF A KIND\n";
-        return true;
+        return ChosenHand("Three of a Kind", 100);
     }
-    return false;
+    return ChosenHand();
 }
 
 bool ThreeOfKindChecker::IsThreeOfKind(const Hand& hand)

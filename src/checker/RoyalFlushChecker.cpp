@@ -2,14 +2,14 @@
 #include "../lib/checker/RoyalFlushChecker.h"
 #include "../lib/PokerHandUtils.h"
 
-bool RoyalFlushChecker::Check(const Hand& hand)
+ChosenHand RoyalFlushChecker::Check(const Hand& hand)
 {
     if (IsRoyalFlush(hand))
     {
         std::cout << "Detected ROYAL FLUSH\n";
-        return true;
+        return ChosenHand("Royal Flush", 800);
     }
-    return false;
+    return ChosenHand();
 }
 
 bool RoyalFlushChecker::IsRoyalFlush(const Hand& hand)

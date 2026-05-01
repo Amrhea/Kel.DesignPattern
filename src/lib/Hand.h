@@ -1,24 +1,25 @@
 #pragma once
 
+#include "Card.h"
 #include <vector>
 
 class Hand
 {
 private:
-    std::vector<int> cards;  // Representasi kartu (misal: 0-51 untuk deck standar)
+    std::vector<Card> cards;
 
 public:
     Hand();
     ~Hand();
 
     // Method untuk menambah kartu
-    void AddCard(int card);
+    void AddCard(Card card);
 
-    // Method untuk menghapus kartu
-    void RemoveCard(int card);
+    // Method untuk menghapus kartu (berdasarkan index atau objek)
+    void RemoveCard(int index);
 
     // Method untuk mendapatkan kartu di index tertentu
-    int GetCard(int index) const;
+    Card GetCard(int index) const;
 
     // Method untuk mendapatkan jumlah kartu
     int GetCardCount() const;

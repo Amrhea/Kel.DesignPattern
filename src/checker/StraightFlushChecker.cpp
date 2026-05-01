@@ -2,14 +2,14 @@
 #include "../lib/checker/StraightFlushChecker.h"
 #include "../lib/PokerHandUtils.h"
 
-bool StraightFlushChecker::Check(const Hand& hand)
+ChosenHand StraightFlushChecker::Check(const Hand& hand)
 {
     if (IsStraightFlush(hand))
     {
         std::cout << "Detected STRAIGHT FLUSH\n";
-        return true;
+        return ChosenHand("Straight Flush", 500);
     }
-    return false;
+    return ChosenHand();
 }
 
 bool StraightFlushChecker::IsStraightFlush(const Hand& hand)

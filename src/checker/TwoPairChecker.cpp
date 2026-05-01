@@ -2,14 +2,14 @@
 #include "../lib/checker/TwoPairChecker.h"
 #include "../lib/PokerHandUtils.h"
 
-bool TwoPairChecker::Check(const Hand& hand)
+ChosenHand TwoPairChecker::Check(const Hand& hand)
 {
     if (IsTwoPair(hand))
     {
         std::cout << "Detected TWO PAIR\n";
-        return true;
+        return ChosenHand("Two Pair", 50);
     }
-    return false;
+    return ChosenHand();
 }
 
 bool TwoPairChecker::IsTwoPair(const Hand& hand)
