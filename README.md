@@ -7,6 +7,7 @@ Sebuah aplikasi C++ untuk mendeteksi tipe poker hand menggunakan **Chain of Resp
 Untuk analisis pattern yang lebih rapi dan class diagram, lihat:
 
 - [Analisis Design Pattern](docs/design-pattern-analysis.md)
+- [Dokumentasi Otomasi Workspace](AUTOMATION.md)
 
 ## Deskripsi
 
