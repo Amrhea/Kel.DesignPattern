@@ -1,0 +1,6 @@
+{
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "ms-vscode.cpptools",
+    "C_Cpp.clang_format_path": "D:/Msys2/Msys2_64/mingw64/bin/clang-format.exe",
+    "C_Cpp.clang_format_fallbackStyle": "none"
+}
