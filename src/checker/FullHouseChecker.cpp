@@ -2,14 +2,14 @@
 #include "../lib/checker/FullHouseChecker.h"
 #include "../lib/PokerHandUtils.h"
 
-bool FullHouseChecker::Check(const Hand& hand)
+ChosenHand FullHouseChecker::Check(const Hand& hand)
 {
     if (IsFullHouse(hand))
     {
         std::cout << "Detected FULL HOUSE\n";
-        return true;
+        return ChosenHand("Full House", 300);
     }
-    return false;
+    return ChosenHand();
 }
 
 bool FullHouseChecker::IsFullHouse(const Hand& hand)

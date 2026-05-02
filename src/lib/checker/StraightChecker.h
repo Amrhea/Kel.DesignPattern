@@ -7,7 +7,7 @@ class StraightChecker : public IPokerHandChecker
     private:
     
     public:
-        bool Check(const Hand& hand) override;
-        bool IsStright(const Hand& hand);
+        ChosenHand Check(const Hand& hand) override;
+        bool IsStraight(const Hand& hand);
 };
 

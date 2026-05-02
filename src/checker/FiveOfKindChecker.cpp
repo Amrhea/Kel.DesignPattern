@@ -2,14 +2,14 @@
 #include "../lib/checker/FiveOfKindChecker.h"
 #include "../lib/PokerHandUtils.h"
 
-bool FiveOfKindChecker::Check(const Hand& hand)
+ChosenHand FiveOfKindChecker::Check(const Hand& hand)
 {
     if (IsFiveOfKind(hand))
     {
         std::cout << "Detected FIVE OF A KIND\n";
-        return true;
+        return ChosenHand("Five of a Kind", 1000);
     }
-    return false;
+    return ChosenHand();
 }
 
 bool FiveOfKindChecker::IsFiveOfKind(const Hand& hand)

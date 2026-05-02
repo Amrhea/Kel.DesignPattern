@@ -74,17 +74,22 @@ void HandHandler::AddChecker(IPokerHandChecker* checker) {
 }
 
 // Method untuk menangani permintaan pengecekan hand
-bool HandHandler::Handle(const Hand& hand) {
+ChosenHand HandHandler::Handle(const Hand& hand) {
     if (head != nullptr) {
         return head->Handle(hand);
     }
-    return false;
+    return ChosenHand();
+}
+
+ChosenHand HandHandler::evaluate(const Hand& hand) {
+    return Handle(hand);
 }
 
 // Method untuk menampilkan semua kartu
 void HandHandler::ShowCards(const Hand& hand) const {
     for (int i = 0; i < hand.GetCardCount(); ++i) {
-        std::cout << "Card[" << i << "]: " << hand.GetCard(i) << std::endl;
+        Card card = hand.GetCard(i);
+        std::cout << "Card[" << i << "]: Rank " << card.rank << ", Suit " << card.suit << std::endl;
     }
 }
 

@@ -2,17 +2,17 @@
 #include "../lib/checker/StraightChecker.h"
 #include "../lib/PokerHandUtils.h"
 
-bool StraightChecker::Check(const Hand& hand)
+ChosenHand StraightChecker::Check(const Hand& hand)
 {
-    if (IsStright(hand))
+    if (IsStraight(hand))
     {
         std::cout << "Detected STRAIGHT\n";
-        return true;
+        return ChosenHand("Straight", 150);
     }
-    return false;
+    return ChosenHand();
 }
 
-bool StraightChecker::IsStright(const Hand& hand)
+bool StraightChecker::IsStraight(const Hand& hand)
 {
     return PokerHandUtils::IsStraight(hand) && !PokerHandUtils::IsFlush(hand);
 }

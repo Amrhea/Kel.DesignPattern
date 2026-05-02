@@ -2,14 +2,14 @@
 #include "../lib/checker/HighCardChecker.h"
 #include "../lib/PokerHandUtils.h"
 
-bool HighCardChecker::Check(const Hand& hand)
+ChosenHand HighCardChecker::Check(const Hand& hand)
 {
     if (IsHighCard(hand))
     {
         std::cout << "Detected HIGH CARD\n";
-        return true;
+        return ChosenHand("High Card", 1);
     }
-    return false;
+    return ChosenHand();
 }
 
 bool HighCardChecker::IsHighCard(const Hand& hand)

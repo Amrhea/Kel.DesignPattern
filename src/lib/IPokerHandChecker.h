@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Hand.h"
+#include "ChosenHand.h"
 #include <iostream>
 
 class IPokerHandChecker
@@ -12,7 +13,7 @@ public:
     IPokerHandChecker() : nextChecker(nullptr) {}
     virtual ~IPokerHandChecker() {}
 
-    virtual bool Check(const Hand& hand) = 0;
+    virtual ChosenHand Check(const Hand& hand) = 0;
     void SetNext(IPokerHandChecker* next) {
         this->nextChecker = next;
     }
@@ -22,13 +23,14 @@ public:
     }
 
     // Method untuk meneruskan permintaan ke checker berikutnya
-    bool Handle(const Hand& hand) {
-        if (Check(hand)) {
-            return true;
+    virtual ChosenHand Handle(const Hand& hand) {
+        ChosenHand result = Check(hand);
+        if (result.isValid()) {
+            return result;
         }
         if (nextChecker != nullptr) {
             return nextChecker->Handle(hand);
         }
-        return false;
+        return ChosenHand(); // Return invalid if no checker matches
     }
 };
