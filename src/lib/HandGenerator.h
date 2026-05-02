@@ -1,9 +1,12 @@
 #pragma once
 
+#include "Hand.h"
+
 class HandGenerator
 {
-    private:
     public:
         HandGenerator();
         ~HandGenerator();
+
+        static Hand generateHand();
 };

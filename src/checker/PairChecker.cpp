@@ -7,7 +7,7 @@ ChosenHand PairChecker::Check(const Hand& hand)
     if (IsPair(hand))
     {
         std::cout << "Detected PAIR\n";
-        return ChosenHand("Pair", 10);
+        return ChosenHand("Pair", 20);
     }
     return ChosenHand();
 }

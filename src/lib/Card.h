@@ -2,7 +2,7 @@
 #define CARD_H
 
 struct Card {
-    int rank;  // 0-12 (Ace to King)
+    int rank;  // 2-14 (2 to Ace)
     char suit; // 'C', 'D', 'H', 'S'
 
     bool operator==(const Card& other) const {

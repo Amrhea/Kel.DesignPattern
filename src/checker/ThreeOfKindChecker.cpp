@@ -7,7 +7,7 @@ ChosenHand ThreeOfKindChecker::Check(const Hand& hand)
     if (IsThreeOfKind(hand))
     {
         std::cout << "Detected THREE OF A KIND\n";
-        return ChosenHand("Three of a Kind", 100);
+        return ChosenHand("Three of a Kind", 40);
     }
     return ChosenHand();
 }

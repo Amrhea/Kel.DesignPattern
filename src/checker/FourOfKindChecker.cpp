@@ -7,7 +7,7 @@ ChosenHand FourOfKindChecker::Check(const Hand& hand)
     if (IsFourOfKind(hand))
     {
         std::cout << "Detected FOUR OF A KIND\n";
-        return ChosenHand("Four of a Kind", 400);
+        return ChosenHand("Four of a Kind", 150);
     }
     return ChosenHand();
 }

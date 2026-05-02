@@ -24,11 +24,11 @@ inline std::vector<char> GetSuits(const Hand& hand) {
     return suits;
 }
 
-inline std::array<int, 13> GetRankCounts(const Hand& hand) {
-    std::array<int, 13> counts = {};
+inline std::array<int, 15> GetRankCounts(const Hand& hand) {
+    std::array<int, 15> counts = {};
     for (int i = 0; i < hand.GetCardCount(); ++i) {
         int r = hand.GetCard(i).rank;
-        if (r >= 0 && r < 13) {
+        if (r >= 2 && r <= 14) {
             ++counts[r];
         }
     }
@@ -36,7 +36,7 @@ inline std::array<int, 13> GetRankCounts(const Hand& hand) {
 }
 
 inline bool HasCount(const Hand& hand, int targetCount) {
-    const std::array<int, 13> counts = GetRankCounts(hand);
+    const std::array<int, 15> counts = GetRankCounts(hand);
     for (int count : counts) {
         if (count == targetCount) {
             return true;
@@ -46,7 +46,7 @@ inline bool HasCount(const Hand& hand, int targetCount) {
 }
 
 inline int CountRanksWithOccurrences(const Hand& hand, int targetCount) {
-    const std::array<int, 13> counts = GetRankCounts(hand);
+    const std::array<int, 15> counts = GetRankCounts(hand);
     int total = 0;
     for (int count : counts) {
         if (count == targetCount) {
@@ -78,12 +78,14 @@ inline bool IsStraight(const Hand& hand) {
     std::vector<int> ranks = GetRanks(hand);
     std::sort(ranks.begin(), ranks.end());
 
+    // Check for duplicates
     for (size_t i = 1; i < ranks.size(); ++i) {
         if (ranks[i] == ranks[i - 1]) {
             return false;
         }
     }
 
+    // Regular straight
     bool isRegularStraight = true;
     for (size_t i = 1; i < ranks.size(); ++i) {
         if (ranks[i] != ranks[0] + static_cast<int>(i)) {
@@ -96,12 +98,8 @@ inline bool IsStraight(const Hand& hand) {
         return true;
     }
 
-    // Ace-low straight (A, 2, 3, 4, 5) -> In our 0-12 rank: 0, 1, 2, 3, 4
-    // Wait, the original code had {0, 9, 10, 11, 12} as special case? 
-    // That's 10, J, Q, K, A. (0 is Ace, 9 is 10, 10 is J, 11 is Q, 12 is K).
-    // So 10-J-Q-K-A is handled by regular straight if A is 12? No, A is 0.
-    // So {0, 9, 10, 11, 12} is indeed 10, J, Q, K, A.
-    return ranks == std::vector<int>{0, 9, 10, 11, 12};
+    // Ace-low straight (A, 2, 3, 4, 5) -> {2, 3, 4, 5, 14}
+    return ranks == std::vector<int>{2, 3, 4, 5, 14};
 }
 
 inline bool IsRoyalFlush(const Hand& hand) {
@@ -111,12 +109,12 @@ inline bool IsRoyalFlush(const Hand& hand) {
 
     std::vector<int> ranks = GetRanks(hand);
     std::sort(ranks.begin(), ranks.end());
-    // Royal Flush is 10, J, Q, K, A (ranks 9, 10, 11, 12, 0)
-    return ranks == std::vector<int>{0, 9, 10, 11, 12};
+    // Royal Flush is 10, J, Q, K, A -> {10, 11, 12, 13, 14}
+    return ranks == std::vector<int>{10, 11, 12, 13, 14};
 }
 
 inline Card FromInt(int card) {
-    int rank = card % 13;
+    int rank = (card % 13) + 2;
     int suitIdx = card / 13;
     char suit;
     switch (suitIdx) {

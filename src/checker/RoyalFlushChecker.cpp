@@ -7,7 +7,7 @@ ChosenHand RoyalFlushChecker::Check(const Hand& hand)
     if (IsRoyalFlush(hand))
     {
         std::cout << "Detected ROYAL FLUSH\n";
-        return ChosenHand("Royal Flush", 800);
+        return ChosenHand("Royal Flush", 500);
     }
     return ChosenHand();
 }
