@@ -8,5 +8,5 @@ class HandGenerator
         HandGenerator();
         ~HandGenerator();
 
-        static Hand generateHand();
+        Hand generateHand();
 };
