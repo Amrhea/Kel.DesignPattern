@@ -4,9 +4,6 @@
 #include <algorithm>
 #include <random>
 
-HandGenerator::HandGenerator() {}
-HandGenerator::~HandGenerator() {}
-
 Hand HandGenerator::generateHand() {
     std::vector<Card> deck;
     std::vector<char> suits = {'H', 'D', 'C', 'S'};

@@ -3,23 +3,25 @@
 #include "Hand.h"
 #include "ChosenHand.h"
 #include <iostream>
+#include <memory>
 
 class IPokerHandChecker
 {
 protected:
-    IPokerHandChecker* nextChecker;
+    std::unique_ptr<IPokerHandChecker> nextChecker;
 
 public:
     IPokerHandChecker() : nextChecker(nullptr) {}
     virtual ~IPokerHandChecker() {}
 
     virtual ChosenHand Check(const Hand& hand) = 0;
-    void SetNext(IPokerHandChecker* next) {
-        this->nextChecker = next;
+    
+    void SetNext(std::unique_ptr<IPokerHandChecker> next) {
+        this->nextChecker = std::move(next);
     }
 
     IPokerHandChecker* GetNext() const {
-        return nextChecker;
+        return nextChecker.get();
     }
 
     // Method untuk meneruskan permintaan ke checker berikutnya

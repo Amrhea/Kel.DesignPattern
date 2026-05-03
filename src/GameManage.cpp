@@ -6,16 +6,10 @@
 
 #include "lib/PokerHandUtils.h"
 
-GameManager::GameManager()
-    : handGenerator(new HandGenerator()),
-      handPlayer(nullptr),
-      scoringRule(nullptr),
-      blindRule(nullptr),
-      rewardRule(nullptr) {
+GameManager::GameManager() {
 }
 
 GameManager::~GameManager() {
-    delete handGenerator;
 }
 
 void GameManager::RunSession() {
@@ -26,7 +20,7 @@ void GameManager::RunSession() {
     
     // 1. Generate
     std::cout << "[System] Generating randomized hand..." << std::endl;
-    Hand hand = handGenerator->generateHand();
+    Hand hand = HandGenerator::generateHand();
 
     // 2. Play
     std::cout << "[System] Current Hand:" << std::endl;
@@ -38,13 +32,17 @@ void GameManager::RunSession() {
 
     // 4. Results & Rewards
     if (result.isValid()) {
-        std::cout << ">> Result: " << result.handName << " (Base Score: " << result.baseScore << ")" << std::endl;
+        int finalScore = ScoringRule::calculateScore(result.handName, result.baseScore);
+        std::cout << ">> Result: " << result.handName << " (Final Score: " << finalScore << ")" << std::endl;
+        
+        int required = BlindRule::getRequiredScore(1);
+        std::cout << "[System] Blind level 1 requires: " << required << std::endl;
+        
+        int reward = RewardRule::calculateReward(finalScore);
+        std::cout << "[System] Rewards Earned: $" << reward << std::endl;
     } else {
         std::cout << ">> Result: No valid hand detected." << std::endl;
     }
-
-    std::cout << "[System] Checking Blind rules... (Placeholder)" << std::endl;
-    std::cout << "[System] Calculating Rewards... (Placeholder)" << std::endl;
     
     std::cout << "--- Session Complete ---" << std::endl;
 }

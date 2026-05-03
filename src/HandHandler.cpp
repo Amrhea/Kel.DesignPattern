@@ -1,37 +1,36 @@
 #include "lib/HandHandler.h"
+#include <memory>
 
 HandHandler::HandHandler() : head(nullptr) {
     // Inisialisasi Chain of Responsibility
     // Urutan dari checker paling spesifik ke paling umum
-    IPokerHandChecker* fiveOfKind = new FiveOfKindChecker();
-    IPokerHandChecker* royalFlush = new RoyalFlushChecker();
-    IPokerHandChecker* straightFlush = new StraightFlushChecker();
-    IPokerHandChecker* fourOfKind = new FourOfKindChecker();
-    IPokerHandChecker* flushHouse = new FlushHouseChecker();
-    IPokerHandChecker* fullHouse = new FullHouseChecker();
-    IPokerHandChecker* flush = new FlushChecker();
-    IPokerHandChecker* straight = new StraightChecker();
-    IPokerHandChecker* threeOfKind = new ThreeOfKindChecker();
-    IPokerHandChecker* twoPair = new TwoPairChecker();
-    IPokerHandChecker* pair = new PairChecker();
-    IPokerHandChecker* highCard = new HighCardChecker();
+    auto fiveOfKind = std::make_unique<FiveOfKindChecker>();
+    auto royalFlush = std::make_unique<RoyalFlushChecker>();
+    auto straightFlush = std::make_unique<StraightFlushChecker>();
+    auto fourOfKind = std::make_unique<FourOfKindChecker>();
+    auto flushHouse = std::make_unique<FlushHouseChecker>();
+    auto fullHouse = std::make_unique<FullHouseChecker>();
+    auto flush = std::make_unique<FlushChecker>();
+    auto straight = std::make_unique<StraightChecker>();
+    auto threeOfKind = std::make_unique<ThreeOfKindChecker>();
+    auto twoPair = std::make_unique<TwoPairChecker>();
+    auto pair = std::make_unique<PairChecker>();
+    auto highCard = std::make_unique<HighCardChecker>();
 
-    // Membangun chain dari paling rare sampai common
-    /**
-     * five of kind -> royal flush -> straight flush -> four of kind -> flush house -> full house -> flush -> straight -> three of kind -> two pair -> pair -> high card
-     */
-    head = fiveOfKind;
-    fiveOfKind->SetNext(royalFlush);
-    royalFlush->SetNext(straightFlush);
-    straightFlush->SetNext(fourOfKind);
-    fourOfKind->SetNext(flushHouse);
-    flushHouse->SetNext(fullHouse);
-    fullHouse->SetNext(flush);
-    flush->SetNext(straight);
-    straight->SetNext(threeOfKind);
-    threeOfKind->SetNext(twoPair);
-    twoPair->SetNext(pair);
-    pair->SetNext(highCard);
+    // Membangun chain dari paling rare sampai common (backwards to set next correctly)
+    pair->SetNext(std::move(highCard));
+    twoPair->SetNext(std::move(pair));
+    threeOfKind->SetNext(std::move(twoPair));
+    straight->SetNext(std::move(threeOfKind));
+    flush->SetNext(std::move(straight));
+    fullHouse->SetNext(std::move(flush));
+    flushHouse->SetNext(std::move(fullHouse));
+    fourOfKind->SetNext(std::move(flushHouse));
+    straightFlush->SetNext(std::move(fourOfKind));
+    royalFlush->SetNext(std::move(straightFlush));
+    fiveOfKind->SetNext(std::move(royalFlush));
+
+    head = std::move(fiveOfKind);
 
     checkerOrder = {
         "High Card",
@@ -50,27 +49,21 @@ HandHandler::HandHandler() : head(nullptr) {
 }
 
 HandHandler::~HandHandler() {
-    // Membersihkan semua checker dalam chain
-    IPokerHandChecker* current = head;
-    while (current != nullptr) {
-        IPokerHandChecker* next = current->GetNext();
-        delete current;
-        current = next;
-    }
+    // Smart pointers handle deletion automatically
 }
 
 // Method untuk menambahkan checker ke dalam chain
-void HandHandler::AddChecker(IPokerHandChecker* checker) {
+void HandHandler::AddChecker(std::unique_ptr<IPokerHandChecker> checker) {
     if (head == nullptr) {
-        head = checker;
+        head = std::move(checker);
         return;
     }
 
-    IPokerHandChecker* current = head;
+    IPokerHandChecker* current = head.get();
     while (current->GetNext() != nullptr) {
         current = current->GetNext();
     }
-    current->SetNext(checker);
+    current->SetNext(std::move(checker));
 }
 
 // Method untuk menangani permintaan pengecekan hand

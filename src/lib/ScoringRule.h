@@ -1,10 +1,12 @@
 #pragma once
 
+#include <string>
+
 class ScoringRule
 {
-private:
-    
 public:
-    ScoringRule();
-    ~ScoringRule();
+    static int calculateScore(const std::string& handName, int baseScore) {
+        // Placeholder for scoring logic
+        return baseScore;
+    }
 };

@@ -37,112 +37,35 @@ Repo ini juga memakai abstract base class dan runtime polymorphism sebagai fonda
 
 Ini mendukung Chain of Responsibility, tetapi bukan pattern utama yang berdiri sendiri seperti CoR.
 
-### 3. Utility Module
+### 3. Utility & Static Rule Classes
 
-`PokerHandUtils` dipakai sebagai kumpulan helper stateless untuk operasi evaluasi hand:
+`PokerHandUtils`, `HandGenerator`, `ScoringRule`, `BlindRule`, dan `RewardRule` diimplementasikan sebagai kumpulan helper stateless (static methods):
 
-- `GetRanks`
-- `GetSuits`
-- `GetRankCounts`
-- `HasCount`
-- `CountRanksWithOccurrences`
-- `IsFlush`
-- `IsStraight`
-- `IsRoyalFlush`
+- `HandGenerator::generateHand()`: Statis, tidak memerlukan instansiasi.
+- `ScoringRule`, `BlindRule`, `RewardRule`: Statis, menghindari penggunaan raw pointers di `GameManager`.
 
-Pendekatan ini membantu concrete checker tetap tipis dan fokus pada aturan kombinasi yang dicek.
+### 4. Memory Management (RAII)
 
-## Pattern Yang Belum Benar-Benar Terimplementasi
-
-### Template Method
-
-Belum tampak sebagai Template Method formal. Memang semua checker memiliki bentuk mirip, tetapi tidak ada base class yang mendefinisikan skeleton algoritma khusus checker selain `Handle(...)` untuk kebutuhan chain.
-
-### Singleton
-
-`GameManager` belum merupakan Singleton:
-
-- constructor tidak privat
-- tidak ada `static instance`
-- tidak ada accessor seperti `GetInstance()`
-
-Saat ini `GameManager` hanya dibuat langsung di `main.cpp`.
-
-### Strategy / Rule Objects
-
-`ScoringRule`, `BlindRule`, `RewardRule`, `HandGenerator`, dan `HandPlayer` masih berupa placeholder:
-
-- belum memiliki perilaku nyata
-- belum dipakai sebagai strategi runtime
-- belum ada hierarchy atau implementasi concrete turunan
-
-Karena itu, pattern seperti Strategy atau Factory belum bisa dihitung sebagai implementasi aktif di repo saat ini.
+Aplikasi menggunakan modern C++ (`std::unique_ptr`) untuk manajemen memori otomatis dalam `HandHandler` dan `IPokerHandChecker`. Ini menjamin tidak ada kebocoran memori pada *Chain of Responsibility*.
 
 ## Class Diagram
 
-Diagram dipecah menjadi dua bagian agar lebih mudah dibaca di GitHub: diagram inti untuk Chain of Responsibility, lalu diagram pendukung untuk konteks aplikasi.
-
-### Diagram Inti: Chain of Responsibility
-
 ```mermaid
 classDiagram
-    class Hand {
-        -vector~int~ cards
-        +AddCard(int)
-        +RemoveCard(int)
-        +GetCard(int) int
-        +GetCardCount() int
-        +Clear()
-        +ShowCards() const
-    }
-
-    class IPokerHandChecker {
-        #IPokerHandChecker* nextChecker
-        +Check(const Hand&) bool
-        +SetNext(IPokerHandChecker*)
-        +GetNext() IPokerHandChecker*
-        +Handle(const Hand&) bool
+    class GameManager {
+        +RunSession()
     }
 
     class HandHandler {
-        -IPokerHandChecker* head
-        -vector~string~ checkerOrder
-        +AddChecker(IPokerHandChecker*)
-        +Handle(const Hand&) bool
-        +ShowCards(const Hand&) const
-        +ShowCheckerOrder() const
-        +GetCheckerNameByOrder(int) string
+        -unique_ptr~IPokerHandChecker~ head
+        +Handle(const Hand&) ChosenHand
     }
 
-    class FiveOfKindChecker
-    class RoyalFlushChecker
-    class StraightFlushChecker
-    class FourOfKindChecker
-    class FlushHouseChecker
-    class FullHouseChecker
-    class FlushChecker
-    class StraightChecker
-    class ThreeOfKindChecker
-    class TwoPairChecker
-    class PairChecker
-    class HighCardChecker
-
-    HandHandler --> IPokerHandChecker : head
-    IPokerHandChecker --> Hand : checks
-    HandHandler --> Hand : handles
-
-    FiveOfKindChecker --|> IPokerHandChecker
-    RoyalFlushChecker --|> IPokerHandChecker
-    StraightFlushChecker --|> IPokerHandChecker
-    FourOfKindChecker --|> IPokerHandChecker
-    FlushHouseChecker --|> IPokerHandChecker
-    FullHouseChecker --|> IPokerHandChecker
-    FlushChecker --|> IPokerHandChecker
-    StraightChecker --|> IPokerHandChecker
-    ThreeOfKindChecker --|> IPokerHandChecker
-    TwoPairChecker --|> IPokerHandChecker
-    PairChecker --|> IPokerHandChecker
-    HighCardChecker --|> IPokerHandChecker
+    class IPokerHandChecker {
+        #unique_ptr~IPokerHandChecker~ nextChecker
+        +SetNext(unique_ptr~IPokerHandChecker~)
+        +Handle(const Hand&) ChosenHand
+    }
 ```
 
 ### Diagram Pendukung: Utility dan Placeholder

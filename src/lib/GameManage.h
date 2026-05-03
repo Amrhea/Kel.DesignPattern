@@ -10,11 +10,8 @@
 class GameManager
 {
     private:
-        HandGenerator* handGenerator;
-        HandPlayer* handPlayer;
-        ScoringRule* scoringRule;
-        BlindRule* blindRule;
-        RewardRule* rewardRule;
+        // HandPlayer could be added here later as a non-pointer or unique_ptr
+        // For now, removing unused null pointers to ensure safety.
 
     public:
         GameManager();
