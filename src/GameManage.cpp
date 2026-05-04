@@ -7,9 +7,11 @@
 #include "lib/PokerHandUtils.h"
 
 GameManager::GameManager() {
+    handGenerator = new HandGenerator();
 }
 
 GameManager::~GameManager() {
+    delete handGenerator;
 }
 
 void GameManager::RunSession() {
@@ -20,7 +22,7 @@ void GameManager::RunSession() {
     
     // 1. Generate
     std::cout << "[System] Generating randomized hand..." << std::endl;
-    Hand hand = HandGenerator::generateHand();
+    Hand hand = handGenerator->generateHand();
 
     // 2. Play
     std::cout << "[System] Current Hand:" << std::endl;

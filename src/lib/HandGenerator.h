@@ -5,5 +5,6 @@
 class HandGenerator
 {
     public:
-        static Hand generateHand();
+        HandGenerator();
+        Hand generateHand();
 };

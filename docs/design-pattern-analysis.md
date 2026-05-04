@@ -41,7 +41,7 @@ Ini mendukung Chain of Responsibility, tetapi bukan pattern utama yang berdiri s
 
 `PokerHandUtils`, `HandGenerator`, `ScoringRule`, `BlindRule`, dan `RewardRule` diimplementasikan sebagai kumpulan helper stateless (static methods):
 
-- `HandGenerator::generateHand()`: Statis, tidak memerlukan instansiasi.
+- `HandGenerator::generateHand()`: Sekarang merupakan instance method, dikelola oleh `GameManager` sebagai member variable.
 - `ScoringRule`, `BlindRule`, `RewardRule`: Statis, menghindari penggunaan raw pointers di `GameManager`.
 
 ### 4. Memory Management (RAII)
