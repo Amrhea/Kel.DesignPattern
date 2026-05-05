@@ -37,78 +37,44 @@ Repo ini juga memakai abstract base class dan runtime polymorphism sebagai fonda
 
 Ini mendukung Chain of Responsibility, tetapi bukan pattern utama yang berdiri sendiri seperti CoR.
 
-### 3. Utility Module
+### 3. Utility & Static Rule Classes
 
-`PokerHandUtils` dipakai sebagai kumpulan helper stateless untuk operasi evaluasi hand:
+`PokerHandUtils`, `HandGenerator`, `ScoringRule`, `BlindRule`, dan `RewardRule` diimplementasikan sebagai kumpulan helper stateless (static methods):
 
-- `GetRanks`
-- `GetSuits`
-- `GetRankCounts`
-- `HasCount`
-- `CountRanksWithOccurrences`
-- `IsFlush`
-- `IsStraight`
-- `IsRoyalFlush`
+- `HandGenerator::generateHand()`: Sekarang merupakan instance method, dikelola oleh `GameManager` sebagai member variable.
+- `ScoringRule`, `BlindRule`, `RewardRule`: Statis, menghindari penggunaan raw pointers di `GameManager`.
 
-Pendekatan ini membantu concrete checker tetap tipis dan fokus pada aturan kombinasi yang dicek.
+### 4. Memory Management (RAII)
 
-## Pattern Yang Belum Benar-Benar Terimplementasi
-
-### Template Method
-
-Belum tampak sebagai Template Method formal. Memang semua checker memiliki bentuk mirip, tetapi tidak ada base class yang mendefinisikan skeleton algoritma khusus checker selain `Handle(...)` untuk kebutuhan chain.
-
-### Singleton
-
-`GameManager` belum merupakan Singleton:
-
-- constructor tidak privat
-- tidak ada `static instance`
-- tidak ada accessor seperti `GetInstance()`
-
-Saat ini `GameManager` hanya dibuat langsung di `main.cpp`.
-
-### Strategy / Rule Objects
-
-`ScoringRule`, `BlindRule`, `RewardRule`, `HandGenerator`, dan `HandPlayer` masih berupa placeholder:
-
-- belum memiliki perilaku nyata
-- belum dipakai sebagai strategi runtime
-- belum ada hierarchy atau implementasi concrete turunan
-
-Karena itu, pattern seperti Strategy atau Factory belum bisa dihitung sebagai implementasi aktif di repo saat ini.
+Aplikasi menggunakan modern C++ (`std::unique_ptr`) untuk manajemen memori otomatis dalam `HandHandler` dan `IPokerHandChecker`. Ini menjamin tidak ada kebocoran memori pada *Chain of Responsibility*.
 
 ## Class Diagram
-
-Diagram dipecah menjadi dua bagian agar lebih mudah dibaca di GitHub: diagram inti untuk Chain of Responsibility, lalu diagram pendukung untuk konteks aplikasi.
-
-### Diagram Inti: Chain of Responsibility
 
 ```mermaid
 classDiagram
     class Hand {
-        -vector~int~ cards
-        +AddCard(int)
+        -vector~Card~ cards
+        +AddCard(Card)
         +RemoveCard(int)
-        +GetCard(int) int
+        +GetCard(int) Card
         +GetCardCount() int
         +Clear()
         +ShowCards() const
     }
 
     class IPokerHandChecker {
-        #IPokerHandChecker* nextChecker
-        +Check(const Hand&) bool
-        +SetNext(IPokerHandChecker*)
+        #std::unique_ptr~IPokerHandChecker~ nextChecker
+        +Check(const Hand&) ChosenHand
+        +SetNext(std::unique_ptr~IPokerHandChecker~)
         +GetNext() IPokerHandChecker*
-        +Handle(const Hand&) bool
+        +Handle(const Hand&) ChosenHand
     }
 
     class HandHandler {
-        -IPokerHandChecker* head
+        -std::unique_ptr~IPokerHandChecker~ head
         -vector~string~ checkerOrder
-        +AddChecker(IPokerHandChecker*)
-        +Handle(const Hand&) bool
+        +AddChecker(std::unique_ptr~IPokerHandChecker~)
+        +Handle(const Hand&) ChosenHand
         +ShowCards(const Hand&) const
         +ShowCheckerOrder() const
         +GetCheckerNameByOrder(int) string
@@ -145,24 +111,19 @@ classDiagram
     HighCardChecker --|> IPokerHandChecker
 ```
 
-### Diagram Pendukung: Utility dan Placeholder
+### Diagram Pendukung: Utility dan Static Rules
 
 ```mermaid
 classDiagram
     class GameManager {
         -HandGenerator* handGenerator
-        -HandPlayer* handPlayer
-        -ScoringRule* scoringRule
-        -BlindRule* blindRule
-        -RewardRule* rewardRule
         +RunSession()
     }
 
     class HandHandler {
-        -IPokerHandChecker* head
-        -vector~string~ checkerOrder
-        +AddChecker(IPokerHandChecker*)
-        +Handle(const Hand&) bool
+        -std::unique_ptr~IPokerHandChecker~ head
+        +AddChecker(std::unique_ptr~IPokerHandChecker~)
+        +Handle(const Hand&) ChosenHand
     }
 
     class PokerHandUtils {
@@ -177,18 +138,27 @@ classDiagram
         +IsRoyalFlush(const Hand&) bool
     }
 
-    class HandGenerator
-    class HandPlayer
-    class ScoringRule
-    class BlindRule
-    class RewardRule
+    class HandGenerator {
+        +generateHand() Hand
+    }
+    class ScoringRule {
+        <<static>>
+        +calculateScore() int
+    }
+    class BlindRule {
+        <<static>>
+        +getRequiredScore() int
+    }
+    class RewardRule {
+        <<static>>
+        +calculateReward() int
+    }
 
     GameManager --> HandHandler : uses
-    GameManager --> HandGenerator : placeholder
-    GameManager --> HandPlayer : placeholder
-    GameManager --> ScoringRule : placeholder
-    GameManager --> BlindRule : placeholder
-    GameManager --> RewardRule : placeholder
+    GameManager --> HandGenerator : manages
+    GameManager ..> ScoringRule : uses
+    GameManager ..> BlindRule : uses
+    GameManager ..> RewardRule : uses
 ```
 
 Checker konkret memakai `PokerHandUtils` sebagai helper evaluasi hand, tetapi dependensi itu tidak digambar satu per satu agar diagram utama tetap ringkas.
@@ -198,5 +168,5 @@ Checker konkret memakai `PokerHandUtils` sebagai helper evaluasi hand, tetapi de
 Jika repo ini dianalisis secara ketat berdasarkan implementasi source code saat ini:
 
 - pattern yang jelas terimplementasi adalah **Chain of Responsibility**
-- abstract class dan polymorphism dipakai sebagai mekanisme pendukung
-- rule classes lain masih **placeholder**, belum membentuk pattern aktif seperti Singleton, Strategy, atau Factory
+- modern C++ RAII digunakan untuk manajemen memori yang aman
+- Rule classes diimplementasikan sebagai static utilities untuk efisiensi

@@ -3,9 +3,8 @@
 #include "IPokerHandChecker.h"
 #include <string>
 #include <vector>
-
-
 #include <iostream>
+#include <memory>
 
 #include "checker/FiveOfKindChecker.h"
 #include "checker/FourOfKindChecker.h"
@@ -24,7 +23,7 @@
 class HandHandler
 {
 private:
-    IPokerHandChecker* head;
+    std::unique_ptr<IPokerHandChecker> head;
     std::vector<std::string> checkerOrder;
 
 public:
@@ -32,7 +31,7 @@ public:
     ~HandHandler();
 
     // Method untuk menambahkan checker ke dalam chain
-    void AddChecker(IPokerHandChecker* checker);
+    void AddChecker(std::unique_ptr<IPokerHandChecker> checker);
 
     // Method untuk menangani permintaan pengecekan hand
     ChosenHand Handle(const Hand& hand);

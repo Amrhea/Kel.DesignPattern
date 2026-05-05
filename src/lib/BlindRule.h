@@ -2,9 +2,9 @@
 
 class BlindRule
 {
-private:
-    
 public:
-    BlindRule();
-    ~BlindRule();
+    static int getRequiredScore(int level) {
+        // Placeholder for blind logic
+        return level * 100;
+    }
 };

@@ -11,10 +11,6 @@ class GameManager
 {
     private:
         HandGenerator* handGenerator;
-        HandPlayer* handPlayer;
-        ScoringRule* scoringRule;
-        BlindRule* blindRule;
-        RewardRule* rewardRule;
 
     public:
         GameManager();

@@ -2,8 +2,9 @@
 
 class RewardRule
 {
-private:
 public:
-    RewardRule(/* args */);
-    ~RewardRule();
+    static int calculateReward(int score) {
+        // Placeholder for reward logic
+        return score * 2;
+    }
 };
