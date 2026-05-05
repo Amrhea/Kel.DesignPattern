@@ -3,8 +3,6 @@
 #include "IPokerHandChecker.h"
 #include <string>
 #include <vector>
-
-
 #include <iostream>
 #include <memory>
 

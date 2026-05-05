@@ -52,40 +52,78 @@ Aplikasi menggunakan modern C++ (`std::unique_ptr`) untuk manajemen memori otoma
 
 ```mermaid
 classDiagram
-    class GameManager {
-        +RunSession()
-    }
-
-    class HandHandler {
-        -unique_ptr~IPokerHandChecker~ head
-        +Handle(const Hand&) ChosenHand
+    class Hand {
+        -vector~Card~ cards
+        +AddCard(Card)
+        +RemoveCard(int)
+        +GetCard(int) Card
+        +GetCardCount() int
+        +Clear()
+        +ShowCards() const
     }
 
     class IPokerHandChecker {
-        #unique_ptr~IPokerHandChecker~ nextChecker
-        +SetNext(unique_ptr~IPokerHandChecker~)
+        #std::unique_ptr~IPokerHandChecker~ nextChecker
+        +Check(const Hand&) ChosenHand
+        +SetNext(std::unique_ptr~IPokerHandChecker~)
+        +GetNext() IPokerHandChecker*
         +Handle(const Hand&) ChosenHand
     }
+
+    class HandHandler {
+        -std::unique_ptr~IPokerHandChecker~ head
+        -vector~string~ checkerOrder
+        +AddChecker(std::unique_ptr~IPokerHandChecker~)
+        +Handle(const Hand&) ChosenHand
+        +ShowCards(const Hand&) const
+        +ShowCheckerOrder() const
+        +GetCheckerNameByOrder(int) string
+    }
+
+    class FiveOfKindChecker
+    class RoyalFlushChecker
+    class StraightFlushChecker
+    class FourOfKindChecker
+    class FlushHouseChecker
+    class FullHouseChecker
+    class FlushChecker
+    class StraightChecker
+    class ThreeOfKindChecker
+    class TwoPairChecker
+    class PairChecker
+    class HighCardChecker
+
+    HandHandler --> IPokerHandChecker : head
+    IPokerHandChecker --> Hand : checks
+    HandHandler --> Hand : handles
+
+    FiveOfKindChecker --|> IPokerHandChecker
+    RoyalFlushChecker --|> IPokerHandChecker
+    StraightFlushChecker --|> IPokerHandChecker
+    FourOfKindChecker --|> IPokerHandChecker
+    FlushHouseChecker --|> IPokerHandChecker
+    FullHouseChecker --|> IPokerHandChecker
+    FlushChecker --|> IPokerHandChecker
+    StraightChecker --|> IPokerHandChecker
+    ThreeOfKindChecker --|> IPokerHandChecker
+    TwoPairChecker --|> IPokerHandChecker
+    PairChecker --|> IPokerHandChecker
+    HighCardChecker --|> IPokerHandChecker
 ```
 
-### Diagram Pendukung: Utility dan Placeholder
+### Diagram Pendukung: Utility dan Static Rules
 
 ```mermaid
 classDiagram
     class GameManager {
         -HandGenerator* handGenerator
-        -HandPlayer* handPlayer
-        -ScoringRule* scoringRule
-        -BlindRule* blindRule
-        -RewardRule* rewardRule
         +RunSession()
     }
 
     class HandHandler {
-        -IPokerHandChecker* head
-        -vector~string~ checkerOrder
-        +AddChecker(IPokerHandChecker*)
-        +Handle(const Hand&) bool
+        -std::unique_ptr~IPokerHandChecker~ head
+        +AddChecker(std::unique_ptr~IPokerHandChecker~)
+        +Handle(const Hand&) ChosenHand
     }
 
     class PokerHandUtils {
@@ -100,18 +138,27 @@ classDiagram
         +IsRoyalFlush(const Hand&) bool
     }
 
-    class HandGenerator
-    class HandPlayer
-    class ScoringRule
-    class BlindRule
-    class RewardRule
+    class HandGenerator {
+        +generateHand() Hand
+    }
+    class ScoringRule {
+        <<static>>
+        +calculateScore() int
+    }
+    class BlindRule {
+        <<static>>
+        +getRequiredScore() int
+    }
+    class RewardRule {
+        <<static>>
+        +calculateReward() int
+    }
 
     GameManager --> HandHandler : uses
-    GameManager --> HandGenerator : placeholder
-    GameManager --> HandPlayer : placeholder
-    GameManager --> ScoringRule : placeholder
-    GameManager --> BlindRule : placeholder
-    GameManager --> RewardRule : placeholder
+    GameManager --> HandGenerator : manages
+    GameManager ..> ScoringRule : uses
+    GameManager ..> BlindRule : uses
+    GameManager ..> RewardRule : uses
 ```
 
 Checker konkret memakai `PokerHandUtils` sebagai helper evaluasi hand, tetapi dependensi itu tidak digambar satu per satu agar diagram utama tetap ringkas.
@@ -121,5 +168,5 @@ Checker konkret memakai `PokerHandUtils` sebagai helper evaluasi hand, tetapi de
 Jika repo ini dianalisis secara ketat berdasarkan implementasi source code saat ini:
 
 - pattern yang jelas terimplementasi adalah **Chain of Responsibility**
-- abstract class dan polymorphism dipakai sebagai mekanisme pendukung
-- rule classes lain masih **placeholder**, belum membentuk pattern aktif seperti Singleton, Strategy, atau Factory
+- modern C++ RAII digunakan untuk manajemen memori yang aman
+- Rule classes diimplementasikan sebagai static utilities untuk efisiensi

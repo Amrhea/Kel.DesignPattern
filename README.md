@@ -61,13 +61,13 @@ D:\CODE\C++\Kel.DesignPattern\
 
 ```
 IPokerHandChecker (Abstract Handler)
-    └── IPokerHandChecker* nextChecker
+    └── std::unique_ptr<IPokerHandChecker> nextChecker
     └── virtual bool Check(hand) = 0
     └── bool Handle(hand) - meneruskan ke nextChecker
 
 HandHandler (Concrete Handler)
-    └── IPokerHandChecker* head
-    └── void AddChecker(checker)
+    └── std::unique_ptr<IPokerHandChecker> head
+    └── void AddChecker(std::unique_ptr<IPokerHandChecker> checker)
     └── bool Handle(hand)
 
 └── Concrete Checkers (12 types):
