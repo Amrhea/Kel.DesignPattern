@@ -1,10 +1,32 @@
 #pragma once
+#include <memory>
 
-class BlindRule
-{
+class IBlindStrategy {
 public:
-    static int getRequiredScore(int level) {
-        // Placeholder for blind logic
-        return level * 100;
-    }
+    virtual ~IBlindStrategy() = default;
+    virtual int GetRequiredScore(int level) = 0;
+};
+
+class SmallBlind : public IBlindStrategy {
+public:
+    int GetRequiredScore(int level) override;
+};
+
+class BigBlind : public IBlindStrategy {
+public:
+    int GetRequiredScore(int level) override;
+};
+
+class BossBlind : public IBlindStrategy {
+public:
+    int GetRequiredScore(int level) override;
+};
+
+class BlindRule {
+private:
+    std::unique_ptr<IBlindStrategy> strategy;
+
+public:
+    BlindRule(std::unique_ptr<IBlindStrategy> strat);
+    int getRequiredScore(int level);
 };

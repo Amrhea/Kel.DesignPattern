@@ -1,0 +1,118 @@
+@startuml Poker Hand Evaluator - Sequence Diagram
+
+actor Main
+participant "GameManager" as GM
+participant "HandGenerator" as HG
+participant "HandHandler" as HH
+participant "FiveOfKindChecker" as HF
+participant "RoyalFlushChecker" as RF
+participant "StraightFlushChecker" as SF
+participant "FourOfKindChecker" as FK
+participant "FlushHouseChecker" as FH
+participant "FullHouseChecker" as FU
+participant "FlushChecker" as FL
+participant "StraightChecker" as ST
+participant "ThreeOfKindChecker" as TK
+participant "TwoPairChecker" as TP
+participant "PairChecker" as PA
+participant "HighCardChecker" as HC
+participant "ScoringRule" as Score
+participant "BlindRule" as Blind
+participant "RewardRule" as Reward
+
+Main -> GM: RunSession()
+activate GM
+GM -> HG: generateHand()
+activate HG
+HG --> GM: Hand (5 cards)
+deactivate HG
+GM -> HH: ShowCards(hand)
+activate HH
+HH -> HH: Loop through cards
+HH --> GM: Display cards
+deactivate HH
+
+GM -> HH: evaluate(hand)
+activate HH
+HH -> HF: Handle(hand)
+activate HF
+HF -> HF: Check(hand)
+HF --> HH: invalid
+deactivate HF
+activate RF
+HH -> RF: Handle(hand)
+RF -> RF: Check(hand)
+RF --> HH: invalid
+deactivate RF
+activate SF
+HH -> SF: Handle(hand)
+SF -> SF: Check(hand)
+SF --> HH: invalid
+deactivate SF
+activate FK
+HH -> FK: Handle(hand)
+FK -> FK: Check(hand)
+FK --> HH: invalid
+deactivate FK
+activate FH
+HH -> FH: Handle(hand)
+FH -> FH: Check(hand)
+FH --> HH: invalid
+deactivate FH
+activate FU
+HH -> FU: Handle(hand)
+FU -> FU: Check(hand)
+FU --> HH: invalid
+deactivate FU
+activate FL
+HH -> FL: Handle(hand)
+FL -> FL: Check(hand)
+FL --> HH: invalid
+deactivate FL
+activate ST
+HH -> ST: Handle(hand)
+ST -> ST: Check(hand)
+ST --> HH: invalid
+deactivate ST
+activate TK
+HH -> TK: Handle(hand)
+TK -> TK: Check(hand)
+TK --> HH: invalid
+deactivate TK
+activate TP
+HH -> TP: Handle(hand)
+TP -> TP: Check(hand)
+TP --> HH: invalid
+deactivate TP
+activate PA
+HH -> PA: Handle(hand)
+PA -> PA: Check(hand)
+PA --> HH: invalid
+deactivate PA
+activate HC
+HH -> HC: Handle(hand)
+HC -> HC: Check(hand)
+HC --> HH: valid result
+deactivate HC
+HH --> GM: ChosenHand
+deactivate HH
+
+GM -> Score: calculateScore(handName, baseScore)
+activate Score
+Score --> GM: finalScore
+deactivate Score
+
+GM -> Blind: getRequiredScore(1)
+activate Blind
+Blind --> GM: required
+deactivate Blind
+
+GM -> Reward: calculateReward(finalScore)
+activate Reward
+Reward --> GM: reward amount
+deactivate Reward
+
+GM --> Main: Print results
+deactivate GM
+
+@enduml

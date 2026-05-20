@@ -37,16 +37,32 @@ Repo ini juga memakai abstract base class dan runtime polymorphism sebagai fonda
 
 Ini mendukung Chain of Responsibility, tetapi bukan pattern utama yang berdiri sendiri seperti CoR.
 
-### 3. Utility & Static Rule Classes
+### 3. Strategy Pattern
 
-`PokerHandUtils`, `HandGenerator`, `ScoringRule`, `BlindRule`, dan `RewardRule` diimplementasikan sebagai kumpulan helper stateless (static methods):
+`ScoringRule`, `BlindRule`, dan `RewardRule` telah direfaktor menggunakan **Strategy Pattern**:
+- Masing-masing bertindak sebagai context class yang membungkus antarmuka strategi (`IScoringStrategy`, `IBlindStrategy`, `IRewardStrategy`).
+- Strategi konkret seperti `StandardScoring`, `DoubleScoring`, `SmallBlind`, `BigBlind`, `BossBlind`, `StandardReward`, dan `GenerousReward` dapat dipertukarkan secara dinamis.
 
-- `HandGenerator::generateHand()`: Sekarang merupakan instance method, dikelola oleh `GameManager` sebagai member variable.
-- `ScoringRule`, `BlindRule`, `RewardRule`: Statis, menghindari penggunaan raw pointers di `GameManager`.
+### 4. Observer Pattern (Joker Cards)
 
-### 4. Memory Management (RAII)
+Joker Cards (`JokerCard`) mengamati permainan kartu dan memodifikasi skor akhir secara dinamis:
+- `Subject` mengelola daftar pointer `Observer`.
+- `GameManager` bertindak sebagai `Subject` yang memanggil `NotifyObservers` ketika kartu selesai dievaluasi.
+- `JokerCard` mengimplementasikan antarmuka `Observer` dan menambah poin skor di method `OnHandPlayed`.
 
-Aplikasi menggunakan modern C++ (`std::unique_ptr`) untuk manajemen memori otomatis dalam `HandHandler` dan `IPokerHandChecker`. Ini menjamin tidak ada kebocoran memori pada *Chain of Responsibility*.
+### 5. Template Method Pattern
+
+Proses kalkulasi skor distandarisasi lewat **Template Method Pattern**:
+- `ScoreCalculator` mendefinisikan langkah algoritma tetap pada method `CalculateScore`: Check Poker Hand → Get Base Score → Modify Score → Return Score.
+- Subclass konkret (`StandardScoreCalculator`, `BonusScoreCalculator`) meng-override method hook `ModifyScore` untuk modifikasi skor yang spesifik.
+
+### 6. Singleton Pattern
+
+`GameManager` menggunakan **Singleton Pattern** dengan method `GetInstance()` untuk memastikan hanya ada satu manajer game aktif yang mengoordinasikan jalannya sesi.
+
+### 7. Memory Management (RAII)
+
+Aplikasi menggunakan modern C++ (`std::unique_ptr`) untuk manajemen memori otomatis dalam `HandHandler`, `IPokerHandChecker`, dan strategy context di `GameManager`. Ini menjamin tidak ada kebocoran memori.
 
 ## Class Diagram
 
@@ -111,54 +127,75 @@ classDiagram
     HighCardChecker --|> IPokerHandChecker
 ```
 
-### Diagram Pendukung: Utility dan Static Rules
+### Diagram Pendukung: Integrasi Arsitektur Baru
 
 ```mermaid
 classDiagram
+    class Subject {
+        #vector~Observer*~ observers
+        +RegisterObserver(Observer*)
+        +RemoveObserver(Observer*)
+        +NotifyObservers(string, int&)
+    }
+
+    class Observer {
+        <<interface>>
+        +OnHandPlayed(string, int&)
+    }
+
+    class JokerCard {
+        -string name
+        -int bonusPoints
+        +OnHandPlayed(string, int&)
+    }
+
     class GameManager {
+        -static GameManager* instance
         -HandGenerator* handGenerator
+        -unique_ptr~ScoringRule~ scoringRule
+        -unique_ptr~BlindRule~ blindRule
+        -unique_ptr~RewardRule~ rewardRule
+        +GetInstance() GameManager*
         +RunSession()
     }
 
-    class HandHandler {
-        -std::unique_ptr~IPokerHandChecker~ head
-        +AddChecker(std::unique_ptr~IPokerHandChecker~)
-        +Handle(const Hand&) ChosenHand
+    class HandPlayer {
+        -int gold
+        -vector~shared_ptr~JokerCard~~ jokers
+        +AddGold(int)
+        +GetGold() int
+        +AddJoker(shared_ptr~JokerCard~)
+        +GetJokers()
     }
 
-    class PokerHandUtils {
-        <<utility>>
-        +GetRanks(const Hand&) vector~int~
-        +GetSuits(const Hand&) vector~int~
-        +GetRankCounts(const Hand&) array~int,13~
-        +HasCount(const Hand&, int) bool
-        +CountRanksWithOccurrences(const Hand&, int) int
-        +IsFlush(const Hand&) bool
-        +IsStraight(const Hand&) bool
-        +IsRoyalFlush(const Hand&) bool
+    class ScoreCalculator {
+        <<abstract>>
+        +CalculateScore(Hand, HandHandler) int
+        #CheckPokerHand() ChosenHand
+        #GetBaseScore() int
+        #ModifyScore(string, int) int
     }
 
-    class HandGenerator {
-        +generateHand() Hand
-    }
-    class ScoringRule {
-        <<static>>
-        +calculateScore() int
-    }
-    class BlindRule {
-        <<static>>
-        +getRequiredScore() int
-    }
-    class RewardRule {
-        <<static>>
-        +calculateReward() int
+    class StandardScoreCalculator {
+        #ModifyScore(string, int) int
     }
 
-    GameManager --> HandHandler : uses
+    class BonusScoreCalculator {
+        #ModifyScore(string, int) int
+    }
+
+    Subject <|-- GameManager
+    Observer <|-- JokerCard
+    ScoreCalculator <|-- StandardScoreCalculator
+    ScoreCalculator <|-- BonusScoreCalculator
+
     GameManager --> HandGenerator : manages
-    GameManager ..> ScoringRule : uses
-    GameManager ..> BlindRule : uses
-    GameManager ..> RewardRule : uses
+    GameManager --> ScoringRule : uses
+    GameManager --> BlindRule : uses
+    GameManager --> RewardRule : uses
+    GameManager ..> ScoreCalculator : uses
+
+    HandPlayer --> JokerCard : owns
 ```
 
 Checker konkret memakai `PokerHandUtils` sebagai helper evaluasi hand, tetapi dependensi itu tidak digambar satu per satu agar diagram utama tetap ringkas.
@@ -167,6 +204,9 @@ Checker konkret memakai `PokerHandUtils` sebagai helper evaluasi hand, tetapi de
 
 Jika repo ini dianalisis secara ketat berdasarkan implementasi source code saat ini:
 
-- pattern yang jelas terimplementasi adalah **Chain of Responsibility**
-- modern C++ RAII digunakan untuk manajemen memori yang aman
-- Rule classes diimplementasikan sebagai static utilities untuk efisiensi
+- Pattern yang jelas terimplementasi adalah **Chain of Responsibility** (untuk evaluasi jenis kartu poker).
+- **Observer Pattern** digunakan untuk efek modifikasi skor secara dinamis oleh Joker Cards.
+- **Strategy Pattern** digunakan untuk aturan scoring, blind, dan reward yang modular.
+- **Template Method Pattern** digunakan untuk urutan evaluasi dan kalkulasi skor tangan yang terstandarisasi.
+- **Singleton Pattern** digunakan untuk mengelola daur hidup instance tunggal dari `GameManager`.
+- Modern C++ RAII digunakan untuk manajemen memori yang aman (`std::unique_ptr` & `std::shared_ptr`).

@@ -2,8 +2,10 @@
 
 int main()
 {
-    GameManager gameManager;
-    gameManager.RunSession();
-
+    GameManager* gameManager = GameManager::GetInstance();
+    gameManager->RunSession();
+    
+    // Cleanup singleton
+    delete gameManager;
     return 0;
 }

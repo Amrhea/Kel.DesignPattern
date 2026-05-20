@@ -4,7 +4,19 @@
       "Bash(gh auth:*)",
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "WebFetch(domain:github.com)",
+      "Bash(curl -fsSL https://raw.githubusercontent.com/JuliusBrussee/caveman/main/install.sh)",
+      "Bash(bash)",
+      "Bash(gh pr *)",
+      "Bash(git diff *)",
+      "Bash(git show *)",
+      "Bash(git checkout *)",
+      "Bash(gh issue *)",
+      "Bash(git pull *)",
+      "Bash(git merge *)",
+      "Bash(git commit *)",
+      "WebSearch"
     ]
   }
 }

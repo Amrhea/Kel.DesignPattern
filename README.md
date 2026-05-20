@@ -1,18 +1,19 @@
 # Poker Hand Evaluator - Design Pattern Implementation
 
-Sebuah aplikasi C++ untuk mendeteksi tipe poker hand menggunakan **Chain of Responsibility Pattern**.
+Sebuah aplikasi C++ untuk mendeteksi tipe poker hand dan mengkalkulasi skor dengan menggunakan berbagai **Design Patterns** (Chain of Responsibility, Observer, Strategy, Template Method, dan Singleton).
 
 ## Dokumentasi Analisis
 
-Untuk analisis pattern yang lebih rapi dan class diagram, lihat:
+Berikut adalah tautan dokumen analisis arsitektur proyek:
 
-- [Analisis Design Pattern](docs/design-pattern-analysis.md)
-- [Dokumentasi Otomasi Workspace](AUTOMATION.md)
-- [Changelog](CHANGELOG.md)
+- **[Analisis Design Pattern](docs/design-pattern-analysis.md)**: Penjelasan lengkap setiap pola desain beserta class diagram (Mermaid).
+- **[Sequence Diagram](docs/sequence-diagram.md)**: Alur runtime eksekusi program.
+- **[Dokumentasi Otomasi Workspace](AUTOMATION.md)**: Panduan otomatisasi CLI tool.
+- **[Changelog](CHANGELOG.md)**: Catatan riwayat perubahan proyek.
 
 ## Deskripsi
 
-Proyek ini mengimplementasikan desain pattern **Chain of Responsibility** untuk mengecek dan mendeteksi 12 tipe poker hand secara berurutan, dari yang paling langka ke yang paling umum.
+Proyek ini mensimulasikan sistem penilaian kartu mirip game *Balatro*. Sistem ini mengombinasikan pendeteksian 12 tipe poker hand menggunakan **Chain of Responsibility**, peningkatan skor dinamis menggunakan **Observer** (Joker Cards), fleksibilitas aturan menggunakan **Strategy**, standarisasi alur evaluasi menggunakan **Template Method**, serta kepastian manajemen instance tunggal menggunakan **Singleton**.
 
 ## Struktur Filesystem
 
@@ -35,19 +36,35 @@ D:\CODE\C++\Kel.DesignPattern\
 │   ├── lib/                      # Header files & Utilities
 │   │   ├── checker/              # Interface & Abstract Classes
 │   │   │   └── *.h
-│   │   ├── GameManage.h/cpp      # GameManager class
-│   │   ├── Hand.h/cpp            # Hand class (data model)
-│   │   ├── HandGenerator.h       # Generator interface (placeholder)
-│   │   ├── HandHandler.h/cpp     # Chain of Responsibility Handler
-│   │   ├── HandPlayer.h          # Player interface (placeholder)
+│   │   ├── ConcreteScoreCalculators.h # Subclass ScoreCalculator
+│   │   ├── GameManage.h          # GameManager header
+│   │   ├── Hand.h                # Hand data model
+│   │   ├── HandGenerator.h       # Random hand generator
+│   │   ├── HandHandler.h         # CoR Chain Handler
+│   │   ├── HandPlayer.h          # Player state (gold & jokers)
 │   │   ├── IPokerHandChecker.h   # Abstract Checker interface
-│   │   ├── PokerHandUtils.h      # Utility functions for card analysis
-│   │   ├── ScoringRule.h         # Scoring interface (placeholder)
-│   │   ├── BlindRule.h           # Blind interface (placeholder)
-│   │   └── RewardRule.h          # Reward interface (placeholder)
-│   ├── GameManage.cpp            # Main game logic
-│   └── main.cpp                  # Application entry point
-├── .vscode/                      # VS Code configuration
+│   │   ├── JokerCard.h           # Observer konkret (Joker)
+│   │   ├── Observer.h            # Observer callback interface
+│   │   ├── Subject.h             # Subject base class
+│   │   ├── PokerHandUtils.h      # Helper kartu
+│   │   ├── ScoreCalculator.h     # Template Method base
+│   │   ├── ScoringRule.h         # Scoring Strategy context
+│   │   ├── BlindRule.h           # Blind Strategy context
+│   │   └── RewardRule.h          # Reward Strategy context
+│   ├── BlindRule.cpp             # Implementasi strategi blind
+│   ├── GameManage.cpp            # Implementasi GameManager
+│   ├── Hand.cpp                  # Implementasi Hand
+│   ├── HandGenerator.cpp         # Implementasi HandGenerator
+│   ├── HandHandler.cpp           # Implementasi HandHandler
+│   ├── HandPlayer.cpp            # Implementasi HandPlayer
+│   ├── JokerCard.cpp             # Implementasi JokerCard
+│   ├── RewardRule.cpp            # Implementasi strategi reward
+│   ├── ScoringRule.cpp           # Implementasi strategi scoring
+│   ├── main.cpp                  # Application entry point
+│   └── docs/                     # Diagram & Analisis
+├── tests/                        # Unit Tests (Catch2)
+│   └── test_checkers.cpp
+├── CMakeLists.txt
 ├── .gitignore
 └── README.md
 ```
@@ -56,111 +73,50 @@ D:\CODE\C++\Kel.DesignPattern\
 
 ### 1. Chain of Responsibility (Primary Pattern)
 
-**Descripsi:** Objek chain dari handler - masing-masing menangani permintaan yang berbeda. Permintaan dilewatkan sepanjang chain sampai handler menangkapnya.
-
-**Implementasi:**
-
+Objek chain dari handler - mendeteksi tipe kartu dari yang paling langka ke yang paling umum:
 ```
-IPokerHandChecker (Abstract Handler)
-    └── std::unique_ptr<IPokerHandChecker> nextChecker
-    └── virtual bool Check(hand) = 0
-    └── bool Handle(hand) - meneruskan ke nextChecker
-
-HandHandler (Concrete Handler)
-    └── std::unique_ptr<IPokerHandChecker> head
-    └── void AddChecker(std::unique_ptr<IPokerHandChecker> checker)
-    └── bool Handle(hand)
-
-└── Concrete Checkers (12 types):
-    ├── FiveOfKindChecker (rarest)
-    ├── RoyalFlushChecker
-    ├── StraightFlushChecker
-    ├── FourOfKindChecker
-    ├── FlushHouseChecker
-    ├── FullHouseChecker
-    ├── FlushChecker
-    ├── StraightChecker
-    ├── ThreeOfKindChecker
-    ├── TwoPairChecker
-    ├── PairChecker
-    └── HighCardChecker (most common)
+1. Five of a Kind  → 2. Royal Flush     → 3. Straight Flush
+→ 4. Four of a Kind  → 5. Flush House     → 6. Full House
+→ 7. Flush           → 8. Straight        → 9. Three of a Kind
+→ 10. Two Pair       → 11. Pair           → 12. High Card (fallback)
 ```
 
-**Chain Order (dari paling rare ke common):**
-```
-1.  Five of a Kind    → 2.  Royal Flush       → 3.  Straight Flush
-→ 4.  Four of a Kind  → 5.  Flush House       → 6.  Full House
-→ 7.  Flush           → 8.  Straight          → 9.  Three of a Kind
-→ 10. Two Pair        → 11. Pair              → 12. High Card
-```
+### 2. Observer Pattern (Joker Cards)
 
-### 2. Template Pattern (Implicit)
+Joker cards mendaftarkan diri sebagai `Observer` ke `GameManager` (sebagai `Subject`). Ketika sesi bermain mengevaluasi tangan, semua Joker terdaftar otomatis dipicu untuk memodifikasi skor pemain.
 
-Setiap checker memiliki struktur yang sama:
-- `Check()` - method utama yang dipanggil
-- `Is<Type>()` - helper method untuk pengecekan spesifik
+### 3. Strategy Pattern (Game Rules)
 
-### 3. Singleton (Potential)
+Aturan kalkulasi skor (`ScoringRule`), target skor blind (`BlindRule`), dan perhitungan gold reward (`RewardRule`) dipisahkan menjadi kelas strategi terpisah yang dapat diganti secara dinamis saat runtime (misal: `StandardScoring` vs `DoubleScoring`, `SmallBlind` vs `BossBlind`).
 
-`GameManager` dirancang sebagai entry point tunggal untuk mengelola game session.
+### 4. Template Method Pattern (Score Calculation Flow)
 
-### 4. Interface/Abstract Class Pattern
+Menggunakan kelas `ScoreCalculator` untuk mendefinisikan langkah tetap perhitungan nilai tangan:
+1. Pengecekan jenis tangan (`CheckPokerHand`)
+2. Pengambilan base score (`GetBaseScore`)
+3. Modifikasi custom score lewat derived class hook (`ModifyScore`)
 
-- `IPokerHandChecker` - Abstract base class untuk semua checker
-- `ScoringRule`, `BlindRule`, `RewardRule` - Interface untuk extensibility
+### 5. Singleton Pattern
+
+`GameManager` diimplementasikan sebagai Singleton guna memastikan satu-satunya pengontrol sesi permainan yang diakses secara global via `GameManager::GetInstance()`.
 
 ## Cara Menjalankan
 
+Proyek ini dibangun menggunakan **CMake**.
+
 ```bash
-# Kompilasi
-g++ -std=c++17 -o poker_main.exe src/main.cpp src/GameManage.cpp src/Hand.cpp src/HandHandler.cpp src/checker/*.cpp
+# 1. Konfigurasi build
+cmake -B build -S .
 
-# Jalankan
-./poker_main.exe
+# 2. Build proyek
+cmake --build build
+
+# 3. Jalankan Game utama
+.\build\bin\PokerGame.exe
+
+# 4. Jalankan Unit Test suite
+.\build\bin\TestRunner.exe
 ```
-
-Atau gunakan build system seperti CMake atau Makefile.
-
-## Penggunaan
-
-1. Jalankan program
-2. Program akan menampilkan daftar checker dari paling mudah ke paling sulit muncul
-3. Input nomor checker (1-12) untuk melihat hasil deteksi
-4. Program akan menjalankan chain of responsibility dan menampilkan hasilnya
-
-## Utility Functions (`PokerHandUtils.h`)
-
-```cpp
-// Mendapatkan rank dari setiap kartu
-std::vector<int> GetRanks(const Hand& hand)
-
-// Mendapatkan suit dari setiap kartu
-std::vector<int> GetSuits(const Hand& hand)
-
-// Menghitung jumlah kemunculan setiap rank
-std::array<int, 13> GetRankCounts(const Hand& hand)
-
-// Cek apakah ada rank dengan jumlah kemunculan tertentu
-bool HasCount(const Hand& hand, int targetCount)
-
-// Menghitung jumlah rank dengan kemunculan tertentu
-int CountRanksWithOccurrences(const Hand& hand, int targetCount)
-
-// Cek flush (5 kartu dengan suit sama)
-bool IsFlush(const Hand& hand)
-
-// Cek straight (5 kartu berurutan)
-bool IsStraight(const Hand& hand)
-
-// Cek royal flush
-bool IsRoyalFlush(const Hand& hand)
-```
-
-## Card Representation
-
-Kartu direpresentasikan sebagai integer 0-51:
-- **Suit:** `card / 13` (0: Clubs, 1: Diamonds, 2: Hearts, 3: Spades)
-- **Rank:** `card % 13` (0-12: Ace, 2-10, Jack, Queen, King)
 
 ## Tipe Poker Hand yang Didukung
 
@@ -181,26 +137,18 @@ Kartu direpresentasikan sebagai integer 0-51:
 
 ## Extensibility
 
-Proyek ini dirancang untuk mudah dikembangkan:
-
-1. **Menambah Checker Baru:**
-   - Buat class baru mewarisi `IPokerHandChecker`
-   - Implementasikan `Check()` method
-   - Tambahkan ke chain di `HandHandler()` constructor
-
-2. **Kustomisasi Rules:**
-   - Modifikasi `ScoringRule`, `BlindRule`, `RewardRule` untuk aturan kustom
+Proyek ini dirancang agar mudah diperluas:
+1. **Menambah Joker Baru:** Buat subclass baru dari `Observer` / `JokerCard`.
+2. **Menambah Strategi Rule Baru:** Buat implementasi konkret baru dari `IScoringStrategy`, `IBlindStrategy`, atau `IRewardStrategy`.
+3. **Menambah Checker Tangan Baru:** Buat checker mewarisi `IPokerHandChecker`, daftarkan ke urutan chain di `HandHandler`.
 
 ## Dependencies
 
 - C++17 atau lebih baru
-- Standard Library: `<vector>`, `<array>`, `<algorithm>`, `<iostream>`
+- CMake 3.15 atau lebih baru
+- Catch2 (untuk unit testing, disertakan otomatis)
 
 ## Author
 
 - **syahrandywaskito** - System Programmer
 - **Amrhea** - Mechanic Programmer
-
-## License
-
-This project is for educational purposes.

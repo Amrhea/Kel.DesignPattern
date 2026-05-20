@@ -2,6 +2,16 @@
 
 Semua perubahan penting dalam proyek **Kel.DesignPattern** akan didokumentasikan di sini.
 
+## [Released] - 2026-05-20
+
+### Ditambahkan
+- Pola desain **Observer** untuk Joker Cards (`Observer.h`, `Subject.h`, `JokerCard.h/cpp`) yang memodifikasi skor poker secara dinamis.
+- Pola desain **Strategy** untuk aturan permainan (`ScoringRule.h/cpp` memakai `IScoringStrategy`, `BlindRule.h/cpp` memakai `IBlindStrategy`, `RewardRule.h/cpp` memakai `IRewardStrategy`).
+- Pola desain **Template Method** untuk kalkulasi skor (`ScoreCalculator.h`, `ConcreteScoreCalculators.h`).
+- Pola desain **Singleton** untuk kelas `GameManager`.
+- Kelas `HandPlayer` (`HandPlayer.h/cpp`) untuk mengelola gold dan daftar kartu Joker.
+- Unit test komprehensif untuk memverifikasi keempat pola desain baru di `tests/test_checkers.cpp`.
+
 ## [Unreleased] - 2026-05-03
 
 ### Ditambahkan
