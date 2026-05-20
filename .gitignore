@@ -67,3 +67,11 @@ vcpkg_installed/
 # test output & cache
 Testing/
 .cache/
+
+# IDE and Agent configurations
+.claude/
+.clinerules/
+.cursor/
+.github/
+.vscode/
+.windsurf/
