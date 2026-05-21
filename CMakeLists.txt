@@ -20,7 +20,7 @@ list(FILTER SOURCES EXCLUDE REGEX "src/main.cpp")
 add_executable(PokerGame src/main.cpp ${SOURCES})
 
 # Tambahkan target Testing
-add_executable(TestRunner tests/test_checkers.cpp ${SOURCES})
+add_executable(TestRunner tests/test_checkers.cpp tests/test_scoring.cpp ${SOURCES})
 
 # (Opsional) Mengatur output direktori agar rapi
 set_target_properties(PokerGame TestRunner PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")

@@ -1,13 +1,14 @@
 #include <iostream>
 #include "../lib/checker/HighCardChecker.h"
 #include "../lib/PokerHandUtils.h"
+#include "../lib/PokerHandType.h"
 
 ChosenHand HighCardChecker::Check(const Hand& hand)
 {
     if (IsHighCard(hand))
     {
         std::cout << "Detected HIGH CARD\n";
-        return ChosenHand("High Card", 10);
+        return ChosenHand("High Card", PokerHandType::HighCard, 10);
     }
     return ChosenHand();
 }

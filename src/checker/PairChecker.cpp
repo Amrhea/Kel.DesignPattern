@@ -1,13 +1,14 @@
 #include <iostream>
 #include "../lib/checker/PairChecker.h"
 #include "../lib/PokerHandUtils.h"
+#include "../lib/PokerHandType.h"
 
 ChosenHand PairChecker::Check(const Hand& hand)
 {
     if (IsPair(hand))
     {
         std::cout << "Detected PAIR\n";
-        return ChosenHand("Pair", 20);
+        return ChosenHand("Pair", PokerHandType::Pair, 20);
     }
     return ChosenHand();
 }

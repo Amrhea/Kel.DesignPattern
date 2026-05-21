@@ -16,7 +16,7 @@ GameManager* GameManager::GetInstance() {
 GameManager::GameManager() {
     handGenerator = new HandGenerator();
     // Default strategies
-    scoringRule = std::make_unique<ScoringRule>(std::make_unique<StandardScoring>());
+    scoringRule = std::make_unique<ScoringRule>(std::make_unique<BaseScoringRule>());
     blindRule = std::make_unique<BlindRule>(std::make_unique<SmallBlind>());
     rewardRule = std::make_unique<RewardRule>(std::make_unique<StandardReward>());
 }

@@ -1,28 +1,23 @@
 #pragma once
-#include <string>
+#include "HandScore.h"
 #include <memory>
 
-class IScoringStrategy {
+class IScoringRule {
 public:
-    virtual ~IScoringStrategy() = default;
-    virtual int CalculateScore(const std::string& handName, int baseScore) = 0;
+    virtual ~IScoringRule() = default;
+    virtual PlayedHandResult Calculate(PokerHandType type, const HandScoreTable& table) = 0;
 };
 
-class StandardScoring : public IScoringStrategy {
+class BaseScoringRule : public IScoringRule {
 public:
-    int CalculateScore(const std::string& handName, int baseScore) override;
-};
-
-class DoubleScoring : public IScoringStrategy {
-public:
-    int CalculateScore(const std::string& handName, int baseScore) override;
+    PlayedHandResult Calculate(PokerHandType type, const HandScoreTable& table) override;
 };
 
 class ScoringRule {
 private:
-    std::unique_ptr<IScoringStrategy> strategy;
+    std::unique_ptr<IScoringRule> strategy;
 
 public:
-    ScoringRule(std::unique_ptr<IScoringStrategy> strat);
-    int calculateScore(const std::string& handName, int baseScore);
+    ScoringRule(std::unique_ptr<IScoringRule> strat);
+    PlayedHandResult calculateScore(PokerHandType type, const HandScoreTable& table);
 };

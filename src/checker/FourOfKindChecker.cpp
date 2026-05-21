@@ -1,13 +1,14 @@
 #include <iostream>
 #include "../lib/checker/FourOfKindChecker.h"
 #include "../lib/PokerHandUtils.h"
+#include "../lib/PokerHandType.h"
 
 ChosenHand FourOfKindChecker::Check(const Hand& hand)
 {
     if (IsFourOfKind(hand))
     {
         std::cout << "Detected FOUR OF A KIND\n";
-        return ChosenHand("Four of a Kind", 150);
+        return ChosenHand("Four of a Kind", PokerHandType::FourOfKind, 150);
     }
     return ChosenHand();
 }
