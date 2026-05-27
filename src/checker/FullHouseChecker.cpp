@@ -1,13 +1,14 @@
 #include <iostream>
 #include "../lib/checker/FullHouseChecker.h"
 #include "../lib/PokerHandUtils.h"
+#include "../lib/PokerHandType.h"
 
 ChosenHand FullHouseChecker::Check(const Hand& hand)
 {
     if (IsFullHouse(hand))
     {
         std::cout << "Detected FULL HOUSE\n";
-        return ChosenHand("Full House", 100);
+        return ChosenHand("Full House", PokerHandType::FullHouse, 100);
     }
     return ChosenHand();
 }

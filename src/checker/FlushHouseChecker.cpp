@@ -1,13 +1,14 @@
 #include <iostream>
 #include "../lib/checker/FlushHouseChecker.h"
 #include "../lib/PokerHandUtils.h"
+#include "../lib/PokerHandType.h"
 
 ChosenHand FlushHouseChecker::Check(const Hand& hand)
 {
     if (IsFlushHouse(hand))
     {
         std::cout << "Detected FLUSH HOUSE\n";
-        return ChosenHand("Flush House", 140);
+        return ChosenHand("Flush House", PokerHandType::FlushHouse, 140);
     }
     return ChosenHand();
 }

@@ -23,6 +23,7 @@ TEST_CASE("PairChecker Tests", "[checker]") {
         ChosenHand result = checker.Check(hand);
         REQUIRE(result.isValid() == true);
         REQUIRE(result.handName == "Pair");
+        REQUIRE(result.handType == PokerHandType::Pair);
     }
 
     SECTION("No Pair (High Card)") {
@@ -56,6 +57,7 @@ TEST_CASE("ThreeOfKindChecker Tests", "[checker]") {
         ChosenHand result = checker.Check(hand);
         REQUIRE(result.isValid() == true);
         REQUIRE(result.handName == "Three of a Kind");
+        REQUIRE(result.handType == PokerHandType::ThreeOfKind);
     }
 
     SECTION("Four of a Kind should not be Three of a Kind") {
@@ -108,11 +110,12 @@ TEST_CASE("Observer Pattern Tests - Joker Cards", "[observer]") {
 
 TEST_CASE("Strategy Pattern Tests - Rules", "[strategy]") {
     SECTION("Scoring Strategy") {
-        ScoringRule standardRule(std::make_unique<StandardScoring>());
-        REQUIRE(standardRule.calculateScore("Flush", 80) == 80);
-
-        ScoringRule doubleRule(std::make_unique<DoubleScoring>());
-        REQUIRE(doubleRule.calculateScore("Flush", 80) == 160);
+        HandScoreTable table;
+        table[PokerHandType::Flush] = HandScoreData(80, 4, 1);
+        
+        ScoringRule standardRule(std::make_unique<BaseScoringRule>());
+        PlayedHandResult result = standardRule.calculateScore(PokerHandType::Flush, table);
+        REQUIRE(result.finalScore == 320);
     }
 
     SECTION("Blind Strategy") {

@@ -1,15 +1,19 @@
 #include "lib/ScoringRule.h"
 
-int StandardScoring::CalculateScore(const std::string& handName, int baseScore) {
-    return baseScore;
+PlayedHandResult BaseScoringRule::Calculate(PokerHandType type, const HandScoreTable& table) {
+    auto it = table.find(type);
+    if (it != table.end()) {
+        const auto& data = it->second;
+        return PlayedHandResult(type, data.baseChips, data.baseMult, data.level);
+    }
+    return PlayedHandResult(type, 0, 0, 0);
 }
 
-int DoubleScoring::CalculateScore(const std::string& handName, int baseScore) {
-    return baseScore * 2;
-}
+ScoringRule::ScoringRule(std::unique_ptr<IScoringRule> strat) : strategy(std::move(strat)) {}
 
-ScoringRule::ScoringRule(std::unique_ptr<IScoringStrategy> strat) : strategy(std::move(strat)) {}
-
-int ScoringRule::calculateScore(const std::string& handName, int baseScore) {
-    return strategy ? strategy->CalculateScore(handName, baseScore) : baseScore;
+PlayedHandResult ScoringRule::calculateScore(PokerHandType type, const HandScoreTable& table) {
+    if (strategy) {
+        return strategy->Calculate(type, table);
+    }
+    return PlayedHandResult(type, 0, 0, 0);
 }
