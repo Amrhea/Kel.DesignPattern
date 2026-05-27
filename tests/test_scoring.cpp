@@ -1,7 +1,7 @@
 #include "catch.hpp"
-#include "../src/lib/HandScore.h"
-#include "../src/lib/ScoringRule.h"
-#include "../src/lib/PokerHandType.h"
+#include "scoring/HandScore.h"
+#include "scoring/ScoringRule.h"
+#include "poker_evaluation/PokerHandType.h"
 
 TEST_CASE("Scoring Subsystem Tests", "[scoring]") {
     HandScoreTable table;
