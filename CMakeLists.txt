@@ -13,13 +13,19 @@ include_directories(tests)
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 
 # Hapus main.cpp dari daftar SOURCES untuk target Testing
-list(FILTER SOURCES EXCLUDE REGEX "src/run/main.cpp")
+list(FILTER SOURCES EXCLUDE REGEX "src/main.cpp")
 
 # Tentukan nama executable dan file sumbernya
-add_executable(PokerGame src/run/main.cpp ${SOURCES})
+add_executable(PokerGame src/main.cpp ${SOURCES})
 
 # Tambahkan target Testing
-add_executable(TestRunner tests/test_checkers.cpp tests/test_scoring.cpp ${SOURCES})
+add_executable(TestRunner 
+    tests/test_checkers.cpp 
+    tests/test_scoring.cpp 
+    tests/test_blind_progression.cpp 
+    tests/test_reward_commands.cpp 
+    ${SOURCES}
+)
 
 # Mengatur output direktori agar rapi
 set_target_properties(PokerGame TestRunner PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
