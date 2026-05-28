@@ -8,21 +8,31 @@ Dokumen ini menjelaskan arsitektur pemisahan state berdasarkan **lifetime (masa 
 
 Sistem dibagi menjadi tiga tingkatan state yang saling terisolasi secara struktural:
 
-```
-┌────────────────────────────────────────────────────────┐
-│ RunPersistentState (Bertahan sepanjang game/run)       │
-│  ├── ante, money, jokers, pendingCommands, currentBlind │
-│  │                                                     │
-│  │  ┌──────────────────────────────────────────────┐   │
-│  │  │ BlindRuntimeState (Direset setiap level/blind)│   │
-│  │  │  ├── blindScore, remainingHands, discards    │   │
-│  │  │  │                                           │   │
-│  │  │  │  ┌─────────────────────────────────────┐  │   │
-│  │  │  │  │ ScoreContext (Temporary per action)  │  │   │
-│  │  │  │  │  ├── handType, chips, mult          │  │   │
-│  │  │  │  └─────────────────────────────────────┘  │   │
-│  │  └──────────────────────────────────────────────┘   │
-└────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph Persistent ["RunPersistentState (Lifetime: Entire Run)"]
+        A[ante]
+        B[money]
+        C[jokers]
+        D[pendingCommands]
+        E[currentBlind]
+        
+        subgraph Runtime ["BlindRuntimeState (Lifetime: Single Blind)"]
+            F[blindScore]
+            G[remainingHands]
+            H[remainingDiscards]
+            
+            subgraph Temporary ["ScoreContext (Lifetime: Single Action / Hand Play)"]
+                I[handType]
+                J[chips]
+                K[mult]
+            end
+        end
+    end
+    
+    style Persistent fill:#1e293b,stroke:#3b82f6,stroke-width:2px,color:#f8fafc
+    style Runtime fill:#0f172a,stroke:#64748b,stroke-width:2px,color:#f1f5f9
+    style Temporary fill:#020617,stroke:#94a3b8,stroke-width:2px,color:#e2e8f0
 ```
 
 ### 1. Persistent State (`RunPersistentState`)
