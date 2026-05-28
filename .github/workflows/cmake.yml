@@ -31,9 +31,21 @@ jobs:
 
     - name: Run Unit Tests (Ubuntu)
       if: matrix.os == 'ubuntu-latest'
-      run: ${{github.workspace}}/build/bin/TestRunner
+      run: |
+        if [ -f "${{github.workspace}}/build/bin/Release/TestRunner" ]; then
+          "${{github.workspace}}/build/bin/Release/TestRunner"
+        else
+          "${{github.workspace}}/build/bin/TestRunner"
+        fi
 
     - name: Run Unit Tests (Windows)
       if: matrix.os == 'windows-latest'
       shell: pwsh
-      run: ${{github.workspace}}/build/bin/TestRunner.exe
+      run: |
+        $exePath = "${{github.workspace}}/build/bin/TestRunner.exe"
+        $releasePath = "${{github.workspace}}/build/bin/Release/TestRunner.exe"
+        if (Test-Path $releasePath) {
+          & $releasePath
+        } else {
+          & $exePath
+        }
