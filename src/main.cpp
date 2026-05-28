@@ -1,7 +1,6 @@
-#include "lib/GameManage.h"
+#include "run/GameManage.h"
 
-int main()
-{
+int main() {
     GameManager* gameManager = GameManager::GetInstance();
     gameManager->RunSession();
     

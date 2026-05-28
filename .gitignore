@@ -74,4 +74,8 @@ Testing/
 .cursor/
 .github/
 .vscode/
-.windsurf/
+.windsurf/
+.antigravitycli/
+
+# DOCS
+AGENTS.md

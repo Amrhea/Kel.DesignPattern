@@ -9,67 +9,64 @@ This diagram shows the flow of execution when evaluating a poker hand using the 
 sequenceDiagram
     participant Main
     participant GM as GameManager
-    participant HG as HandGenerator
+    participant Session as RuntimeSession
+    participant Blind as BlindState
     participant HH as HandHandler
-    participant HF as FiveOfKindChecker
-    participant RF as RoyalFlushChecker
-    participant SF as StraightFlushChecker
-    participant FK as FourOfKindChecker
-    participant FH as FlushHouseChecker
-    participant FU as FullHouseChecker
-    participant FL as FlushChecker
-    participant ST as StraightChecker
-    participant TK as ThreeOfKindChecker
-    participant TP as TwoPairChecker
-    participant PA as PairChecker
-    participant HC as HighCardChecker
-    participant Score as ScoringRule
-    participant Blind as BlindRule
-    participant Reward as RewardRule
+    participant HG as HandGenerator
+    participant Joker as JokerCard
+    participant Cmd as RewardCommand
 
     Main->>GM: RunSession()
-    GM->>HG: generateHand()
-    HG-->>GM: Hand (5 cards)
-    GM->>HH: ShowCards(hand)
-    HH-->>GM: Display cards
-    
-    GM->>HH: evaluate(hand)
-    HH->>HF: Handle(hand) -> invalid
-    HH->>RF: Handle(hand) -> invalid
-    HH->>SF: Handle(hand) -> invalid
-    HH->>FK: Handle(hand) -> invalid
-    HH->>FH: Handle(hand) -> invalid
-    HH->>FU: Handle(hand) -> invalid
-    HH->>FL: Handle(hand) -> invalid
-    HH->>ST: Handle(hand) -> invalid
-    HH->>TK: Handle(hand) -> invalid
-    HH->>TP: Handle(hand) -> invalid
-    HH->>PA: Handle(hand) -> invalid
-    HH->>HC: Handle(hand) -> valid
-    
-    HH-->>GM: ChosenHand
-    GM->>Score: calculateScore()
-    Score-->>GM: finalScore
-    GM->>Blind: getRequiredScore()
-    Blind-->>GM: required
-    GM->>Reward: calculateReward()
-    Reward-->>GM: reward
-    GM-->>Main: Print results
+    Note over GM,Session: Initialize RuntimeSession (SmallBlindState active)
+
+    loop While session.ante == 1
+        GM->>Session: get currentBlind details
+        Session->>Blind: getName(), getTargetScore(ante)
+        Blind-->>GM: name, target score
+
+        alt Skip Blind
+            GM->>Session: skipBlind()
+            Session->>Blind: createSkipRewardCommand()
+            Blind-->>Session: Command instance (queued)
+            Session->>Blind: nextState(ante)
+            Blind-->>Session: Next BlindState
+            Note over Session: executePendingCommands("NextBlind")
+            Session->>Cmd: execute() (if timing matches)
+            Session-->>GM: execution and transition logs
+        else Play Blind
+            GM->>HG: generateHand()
+            HG-->>GM: Hand
+            GM->>HH: evaluate(hand)
+            HH-->>GM: ChosenHand
+            Note over GM,Joker: NotifyObservers(handName, score)
+            Joker->>GM: Modify score (Jokers)
+            GM->>Session: playBlind()
+            Session->>Blind: nextState(ante)
+            Blind-->>Session: Next BlindState
+            Note over Session: executePendingCommands("NextBlind")
+            Session-->>GM: transition logs
+        end
+    end
 ```
 
 ## Execution Flow
 
 1. **Main** → `GameManager::RunSession()`
-2. **HandGenerator** generates random 5-card hand
-3. **HandHandler** displays cards
-4. **Chain of Responsibility** evaluates hand:
-   - Checks from rarest (Five of Kind) to commonest (High Card)
-   - Each checker returns invalid → passes to next
-   - First valid match returns result
-5. **Scoring** calculates final score
-6. **Blind** gets required score for level
-7. **Reward** calculates money earned
-8. Results printed to console
+2. **GameManager** initializes `RuntimeSession` (with `SmallBlindState` active).
+3. **Loop** runs while `session.ante` is 1:
+   - Gets current blind details (name, target score).
+   - User inputs action (`play` or `skip`).
+   - If **skip**:
+     - `RuntimeSession::skipBlind()` queues the skip reward command from `currentBlind->createSkipRewardCommand()`.
+     - State transitions via `currentBlind->nextState(ante)`.
+     - `executePendingCommands` runs to trigger matching commands (`NextBlind` or `NextAnte`).
+   - If **play**:
+     - Hand is generated and evaluated via Chain of Responsibility.
+     - Final score calculated (Template Method + Observer modifiers from Joker cards).
+     - Gold reward added based on blind reward money.
+     - `RuntimeSession::playBlind()` advances blind state.
+4. Loop completes when `session.ante` increments.
+
 
 ## Checker Order (Rarest → Commonest)
 

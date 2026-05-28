@@ -19,51 +19,30 @@ Proyek ini mensimulasikan sistem penilaian kartu mirip game *Balatro*. Sistem in
 
 ```
 D:\CODE\C++\Kel.DesignPattern\
-├── src/
-│   ├── checker/                  # Implementasi Checker (Concrete Handlers)
-│   │   ├── FiveOfKindChecker.cpp/h
-│   │   ├── FlushChecker.cpp/h
-│   │   ├── FlushHouseChecker.cpp/h
-│   │   ├── FourOfKindChecker.cpp/h
-│   │   ├── FullHouseChecker.cpp/h
-│   │   ├── HighCardChecker.cpp/h
-│   │   ├── PairChecker.cpp/h
-│   │   ├── RoyalFlushChecker.cpp/h
-│   │   ├── StraightChecker.cpp/h
-│   │   ├── StraightFlushChecker.cpp/h
-│   │   ├── ThreeOfKindChecker.cpp/h
-│   │   └── TwoPairChecker.cpp/h
-│   ├── lib/                      # Header files & Utilities
-│   │   ├── checker/              # Interface & Abstract Classes
-│   │   │   └── *.h
-│   │   ├── ConcreteScoreCalculators.h # Subclass ScoreCalculator
-│   │   ├── GameManage.h          # GameManager header
-│   │   ├── Hand.h                # Hand data model
-│   │   ├── HandGenerator.h       # Random hand generator
-│   │   ├── HandHandler.h         # CoR Chain Handler
-│   │   ├── HandPlayer.h          # Player state (gold & jokers)
-│   │   ├── IPokerHandChecker.h   # Abstract Checker interface
-│   │   ├── JokerCard.h           # Observer konkret (Joker)
-│   │   ├── Observer.h            # Observer callback interface
-│   │   ├── Subject.h             # Subject base class
-│   │   ├── PokerHandUtils.h      # Helper kartu
-│   │   ├── ScoreCalculator.h     # Template Method base
-│   │   ├── ScoringRule.h         # Scoring Strategy context
-│   │   ├── BlindRule.h           # Blind Strategy context
-│   │   └── RewardRule.h          # Reward Strategy context
-│   ├── BlindRule.cpp             # Implementasi strategi blind
-│   ├── GameManage.cpp            # Implementasi GameManager
-│   ├── Hand.cpp                  # Implementasi Hand
-│   ├── HandGenerator.cpp         # Implementasi HandGenerator
-│   ├── HandHandler.cpp           # Implementasi HandHandler
-│   ├── HandPlayer.cpp            # Implementasi HandPlayer
-│   ├── JokerCard.cpp             # Implementasi JokerCard
-│   ├── RewardRule.cpp            # Implementasi strategi reward
-│   ├── ScoringRule.cpp           # Implementasi strategi scoring
-│   ├── main.cpp                  # Application entry point
-│   └── docs/                     # Diagram & Analisis
+├── include/                      # Folder Header untuk 8 Subsystem
+│   ├── blind/                    # Interface & State Blind (State Pattern)
+│   ├── card/                     # Model Kartu
+│   ├── hand_selection/           # Hand & Generator
+│   ├── joker/                    # Observer & Subject Joker
+│   ├── poker_evaluation/         # CoR Checkers & HandHandler
+│   ├── reward/                   # Command Reward (Command Pattern)
+│   ├── run/                      # GameManager Facade & HandPlayer
+│   └── scoring/                  # Template Method & Scoring Rule
+├── src/                          # Folder Implementasi untuk 8 Subsystem
+│   ├── blind/
+│   ├── hand_selection/
+│   ├── joker/
+│   ├── poker_evaluation/
+│   ├── reward/
+│   ├── run/
+│   ├── scoring/
+│   └── main.cpp                  # Entry point minimal (bootstrap GameManager)
+├── docs/                         # Diagram & Analisis
 ├── tests/                        # Unit Tests (Catch2)
-│   └── test_checkers.cpp
+│   ├── test_checkers.cpp
+│   ├── test_scoring.cpp
+│   ├── test_blind_progression.cpp
+│   └── test_reward_commands.cpp
 ├── CMakeLists.txt
 ├── .gitignore
 └── README.md
@@ -96,9 +75,18 @@ Menggunakan kelas `ScoreCalculator` untuk mendefinisikan langkah tetap perhitung
 2. Pengambilan base score (`GetBaseScore`)
 3. Modifikasi custom score lewat derived class hook (`ModifyScore`)
 
-### 5. Singleton Pattern
+### 5. State Pattern (Blind Progression)
+
+Blind progression diimplementasikan menggunakan State Pattern tanpa `if-else` bertumpuk. State berpindah secara dinamis dari `SmallBlindState` → `BigBlindState` → `BossBlindState` → `SmallBlindState` (menaikkan nilai Ante).
+
+### 6. Command Pattern (Skip Reward Commands)
+
+Skip reward diimplementasikan menggunakan Command Pattern dengan deferred queue. Perintah seperti `BonusHandCommand` dan `FreePlayingCardCommand` dibungkus sebagai objek perintah yang dieksekusi secara tertunda sesuai timing pemicunya (`NextBlind`, `NextAnte`).
+
+### 7. Singleton Pattern
 
 `GameManager` diimplementasikan sebagai Singleton guna memastikan satu-satunya pengontrol sesi permainan yang diakses secara global via `GameManager::GetInstance()`.
+
 
 ## Cara Menjalankan
 

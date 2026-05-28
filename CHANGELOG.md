@@ -2,6 +2,20 @@
 
 Semua perubahan penting dalam proyek **Kel.DesignPattern** akan didokumentasikan di sini.
 
+## [Released] - 2026-05-28
+
+### Ditambahkan
+- Pola desain **State** untuk progression blind (`BlindState`, `SmallBlindState`, `BigBlindState`, `BossBlindState`).
+- Pola desain **Command** untuk skip reward (`RewardCommand`, `BonusHandCommand`, `FreePlayingCardCommand`) beserta mekanisme deferred command queue.
+- Unit test untuk progression blind dan reward command (`tests/test_blind_progression.cpp` dan `tests/test_reward_commands.cpp`).
+
+### Diubah
+- Restrukturisasi proyek menjadi **8 subsystem terisolasi**: `card`, `hand_selection`, `poker_evaluation`, `scoring`, `joker`, `blind`, `reward`, dan `run`.
+- Folder header dipisah ke dalam `include/` dan folder implementasi ke `src/` untuk semua subsystem.
+- Pembersihan include path di seluruh codebase menggunakan clean include path format (e.g., `#include "card/Card.h"`).
+- Logika game loop didecouple penuh dari `main.cpp` dan diisolasi ke dalam `GameManager` (Subsystem `run`).
+- `CMakeLists.txt` diperbarui untuk mendukung struktur direktori baru dan unit test baru.
+
 ## [Released] - 2026-05-20
 
 ### Ditambahkan

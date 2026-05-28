@@ -56,13 +56,25 @@ Proses kalkulasi skor distandarisasi lewat **Template Method Pattern**:
 - `ScoreCalculator` mendefinisikan langkah algoritma tetap pada method `CalculateScore`: Check Poker Hand → Get Base Score → Modify Score → Return Score.
 - Subclass konkret (`StandardScoreCalculator`, `BonusScoreCalculator`) meng-override method hook `ModifyScore` untuk modifikasi skor yang spesifik.
 
-### 6. Singleton Pattern
+### 6. State Pattern (Blind Progression)
+
+Progresi tingkat blind (Small Blind → Big Blind → Boss Blind → looping kembali ke Small Blind sambil menaikkan Ante) diatur menggunakan **State Pattern**:
+- `BlindState` bertindak sebagai abstract state.
+- `SmallBlindState`, `BigBlindState`, dan `BossBlindState` mewakili state konkret yang menghitung `targetScore`, `rewardMoney`, serta mengatur transisi ke state berikutnya secara dinamis.
+
+### 7. Command Pattern (Skip Rewards)
+
+Mekanisme skip reward dibungkus dengan **Command Pattern** untuk memfasilitasi eksekusi efek tertunda (deferred execution queue):
+- `RewardCommand` bertindak sebagai interface perintah dengan metode `execute(RuntimeSession&)`.
+- `BonusHandCommand` dan `FreePlayingCardCommand` adalah perintah konkret dengan timing pemicu (`NextBlind` atau `NextAnte`) yang dieksekusi secara otomatis dari antrean.
+
+### 8. Singleton Pattern
 
 `GameManager` menggunakan **Singleton Pattern** dengan method `GetInstance()` untuk memastikan hanya ada satu manajer game aktif yang mengoordinasikan jalannya sesi.
 
-### 7. Memory Management (RAII)
+### 9. Memory Management (RAII)
 
-Aplikasi menggunakan modern C++ (`std::unique_ptr`) untuk manajemen memori otomatis dalam `HandHandler`, `IPokerHandChecker`, dan strategy context di `GameManager`. Ini menjamin tidak ada kebocoran memori.
+Aplikasi menggunakan modern C++ (`std::unique_ptr` & `std::shared_ptr`) untuk manajemen memori otomatis dalam `HandHandler`, state blind, command queue, dan strategy context di `GameManager`. Ini menjamin tidak ada kebocoran memori.
 
 ## Class Diagram
 
@@ -184,16 +196,59 @@ classDiagram
         #ModifyScore(string, int) int
     }
 
+    class BlindState {
+        <<abstract>>
+        +getName() string
+        +getTargetScore(int) int
+        +getRewardMoney() int
+        +createSkipRewardCommand() shared_ptr~RewardCommand~
+        +nextState(int&) shared_ptr~BlindState~
+    }
+    class SmallBlindState
+    class BigBlindState
+    class BossBlindState
+
+    class RewardCommand {
+        <<interface>>
+        +getName() string
+        +getTiming() string
+        +execute(RuntimeSession&)
+    }
+    class BonusHandCommand
+    class FreePlayingCardCommand
+
+    class RuntimeSession {
+        +int ante
+        +int remainingPlays
+        +vector~string~ deck
+        +shared_ptr~BlindState~ currentBlind
+        +vector~shared_ptr~RewardCommand~~ pendingCommands
+        +executePendingCommands(string) vector~string~
+        +skipBlind() vector~string~
+        +playBlind() vector~string~
+    }
+
     Subject <|-- GameManager
     Observer <|-- JokerCard
     ScoreCalculator <|-- StandardScoreCalculator
     ScoreCalculator <|-- BonusScoreCalculator
+
+    BlindState <|-- SmallBlindState
+    BlindState <|-- BigBlindState
+    BlindState <|-- BossBlindState
+
+    RewardCommand <|-- BonusHandCommand
+    RewardCommand <|-- FreePlayingCardCommand
 
     GameManager --> HandGenerator : manages
     GameManager --> ScoringRule : uses
     GameManager --> BlindRule : uses
     GameManager --> RewardRule : uses
     GameManager ..> ScoreCalculator : uses
+    GameManager ..> RuntimeSession : orchestrates
+
+    RuntimeSession --> BlindState : currentBlind
+    RuntimeSession --> RewardCommand : pendingCommands
 
     HandPlayer --> JokerCard : owns
 ```
@@ -208,5 +263,7 @@ Jika repo ini dianalisis secara ketat berdasarkan implementasi source code saat 
 - **Observer Pattern** digunakan untuk efek modifikasi skor secara dinamis oleh Joker Cards.
 - **Strategy Pattern** digunakan untuk aturan scoring, blind, dan reward yang modular.
 - **Template Method Pattern** digunakan untuk urutan evaluasi dan kalkulasi skor tangan yang terstandarisasi.
+- **State Pattern** digunakan untuk perpindahan status tingkat blind secara dinamis tanpa if-else bertumpuk.
+- **Command Pattern** digunakan untuk pembungkusan dan eksekusi tertunda (deferred queue) pada skip reward commands.
 - **Singleton Pattern** digunakan untuk mengelola daur hidup instance tunggal dari `GameManager`.
 - Modern C++ RAII digunakan untuk manajemen memori yang aman (`std::unique_ptr` & `std::shared_ptr`).

@@ -1,9 +1,9 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
-#include "../src/lib/Hand.h"
-#include "../src/lib/checker/PairChecker.h"
-#include "../src/lib/checker/ThreeOfKindChecker.h"
-#include "../src/lib/PokerHandUtils.h"
+#include "hand_selection/Hand.h"
+#include "poker_evaluation/checker/PairChecker.h"
+#include "poker_evaluation/checker/ThreeOfKindChecker.h"
+#include "poker_evaluation/PokerHandUtils.h"
 
 // Helper function to create a Hand from a list of ints using the FromInt utility
 Hand CreateHand(std::vector<int> cards) {
@@ -68,16 +68,16 @@ TEST_CASE("ThreeOfKindChecker Tests", "[checker]") {
     }
 }
 
-#include "../src/lib/Observer.h"
-#include "../src/lib/Subject.h"
-#include "../src/lib/JokerCard.h"
-#include "../src/lib/ScoringRule.h"
-#include "../src/lib/BlindRule.h"
-#include "../src/lib/RewardRule.h"
-#include "../src/lib/ScoreCalculator.h"
-#include "../src/lib/ConcreteScoreCalculators.h"
-#include "../src/lib/GameManage.h"
-#include "../src/lib/HandHandler.h"
+#include "joker/Observer.h"
+#include "joker/Subject.h"
+#include "joker/JokerCard.h"
+#include "scoring/ScoringRule.h"
+#include "blind/BlindRule.h"
+#include "reward/RewardRule.h"
+#include "scoring/ScoreCalculator.h"
+#include "scoring/ConcreteScoreCalculators.h"
+#include "run/GameManage.h"
+#include "poker_evaluation/HandHandler.h"
 
 TEST_CASE("Observer Pattern Tests - Joker Cards", "[observer]") {
     class TestSubject : public Subject {
@@ -161,4 +161,3 @@ TEST_CASE("Singleton Pattern Tests - GameManager", "[singleton]") {
     GameManager* instance2 = GameManager::GetInstance();
     REQUIRE(instance1 == instance2);
 }
-
