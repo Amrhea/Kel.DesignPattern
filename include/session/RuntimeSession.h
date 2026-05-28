@@ -17,7 +17,7 @@ public:
     RuntimeSession();
     ~RuntimeSession();
 
-    void executePendingCommands(const std::string& timing);
-    void skipBlind();
-    void playBlind();
+    std::vector<std::string> executePendingCommands(const std::string& timing);
+    std::vector<std::string> skipBlind();
+    std::vector<std::string> playBlind();
 };

@@ -1,36 +1,10 @@
-#include "session/RuntimeSession.h"
-#include "blind/BlindState.h"
-#include <iostream>
-#include <string>
+#include "run/GameManage.h"
 
 int main() {
-    RuntimeSession session;
+    GameManager* gameManager = GameManager::GetInstance();
+    gameManager->RunSession();
     
-    // Demonstrate loop for Ante 1
-    while (session.ante == 1) {
-        std::cout << "=== Ante " << session.ante << " ===" << std::endl;
-        std::cout << "Current Blind: " << session.currentBlind->getName() << std::endl;
-        std::cout << "Target Score: " << session.currentBlind->getTargetScore(session.ante) << std::endl;
-        std::cout << "Action? (play/skip): ";
-        
-        std::string choice;
-        if (!(std::cin >> choice)) {
-            choice = "skip";
-            std::cout << choice << std::endl;
-        }
-        
-        if (choice == "skip") {
-            session.skipBlind();
-        } else {
-            session.playBlind();
-        }
-        std::cout << std::endl;
-    }
-    
-    // Show Ante 2 entry
-    std::cout << "=== Ante " << session.ante << " ===" << std::endl;
-    std::cout << "Current Blind: " << session.currentBlind->getName() << std::endl;
-    std::cout << "Target Score: " << session.currentBlind->getTargetScore(session.ante) << std::endl;
-    
+    // Cleanup singleton
+    delete gameManager;
     return 0;
 }
