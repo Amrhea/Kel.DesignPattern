@@ -2,117 +2,79 @@
 
 actor Main
 participant "GameManager" as GM
+participant "RuntimeSession" as Session
+participant "BlindState" as Blind
 participant "HandGenerator" as HG
 participant "HandHandler" as HH
-participant "FiveOfKindChecker" as HF
-participant "RoyalFlushChecker" as RF
-participant "StraightFlushChecker" as SF
-participant "FourOfKindChecker" as FK
-participant "FlushHouseChecker" as FH
-participant "FullHouseChecker" as FU
-participant "FlushChecker" as FL
-participant "StraightChecker" as ST
-participant "ThreeOfKindChecker" as TK
-participant "TwoPairChecker" as TP
-participant "PairChecker" as PA
-participant "HighCardChecker" as HC
-participant "ScoringRule" as Score
-participant "BlindRule" as Blind
-participant "RewardRule" as Reward
+participant "JokerCard" as Joker
+participant "RewardCommand" as Cmd
 
 Main -> GM: RunSession()
 activate GM
-GM -> HG: generateHand()
-activate HG
-HG --> GM: Hand (5 cards)
-deactivate HG
-GM -> HH: ShowCards(hand)
-activate HH
-HH -> HH: Loop through cards
-HH --> GM: Display cards
-deactivate HH
 
-GM -> HH: evaluate(hand)
-activate HH
-HH -> HF: Handle(hand)
-activate HF
-HF -> HF: Check(hand)
-HF --> HH: invalid
-deactivate HF
-activate RF
-HH -> RF: Handle(hand)
-RF -> RF: Check(hand)
-RF --> HH: invalid
-deactivate RF
-activate SF
-HH -> SF: Handle(hand)
-SF -> SF: Check(hand)
-SF --> HH: invalid
-deactivate SF
-activate FK
-HH -> FK: Handle(hand)
-FK -> FK: Check(hand)
-FK --> HH: invalid
-deactivate FK
-activate FH
-HH -> FH: Handle(hand)
-FH -> FH: Check(hand)
-FH --> HH: invalid
-deactivate FH
-activate FU
-HH -> FU: Handle(hand)
-FU -> FU: Check(hand)
-FU --> HH: invalid
-deactivate FU
-activate FL
-HH -> FL: Handle(hand)
-FL -> FL: Check(hand)
-FL --> HH: invalid
-deactivate FL
-activate ST
-HH -> ST: Handle(hand)
-ST -> ST: Check(hand)
-ST --> HH: invalid
-deactivate ST
-activate TK
-HH -> TK: Handle(hand)
-TK -> TK: Check(hand)
-TK --> HH: invalid
-deactivate TK
-activate TP
-HH -> TP: Handle(hand)
-TP -> TP: Check(hand)
-TP --> HH: invalid
-deactivate TP
-activate PA
-HH -> PA: Handle(hand)
-PA -> PA: Check(hand)
-PA --> HH: invalid
-deactivate PA
-activate HC
-HH -> HC: Handle(hand)
-HC -> HC: Check(hand)
-HC --> HH: valid result
-deactivate HC
-HH --> GM: ChosenHand
-deactivate HH
+Note over GM, Session: Initialize RuntimeSession (SmallBlindState active)
 
-GM -> Score: calculateScore(handName, baseScore)
-activate Score
-Score --> GM: finalScore
-deactivate Score
+loop While session.ante == 1
+    GM -> Session: get currentBlind details
+    activate Session
+    Session -> Blind: getName()
+    activate Blind
+    Blind --> Session: name
+    deactivate Blind
+    Session -> Blind: getTargetScore(ante)
+    activate Blind
+    Blind --> Session: targetScore
+    deactivate Blind
+    Session --> GM: name, target score
+    deactivate Session
 
-GM -> Blind: getRequiredScore(1)
-activate Blind
-Blind --> GM: required
-deactivate Blind
+    alt Skip Blind
+        GM -> Session: skipBlind()
+        activate Session
+        Session -> Blind: createSkipRewardCommand()
+        activate Blind
+        Blind --> Session: Command instance (queued)
+        deactivate Blind
+        Session -> Blind: nextState(ante)
+        activate Blind
+        Blind --> Session: Next BlindState
+        deactivate Blind
+        Note over Session: executePendingCommands("NextBlind")
+        Session -> Cmd: execute(Session)
+        activate Cmd
+        Cmd --> Session: reward applied
+        deactivate Cmd
+        Session --> GM: execution & transition logs
+        deactivate Session
+    else Play Blind
+        GM -> HG: generateHand()
+        activate HG
+        HG --> GM: Hand
+        deactivate HG
+        
+        GM -> HH: evaluate(hand)
+        activate HH
+        HH --> GM: ChosenHand
+        deactivate HH
 
-GM -> Reward: calculateReward(finalScore)
-activate Reward
-Reward --> GM: reward amount
-deactivate Reward
+        Note over GM, Joker: NotifyObservers(handName, score)
+        GM -> Joker: Update(handName, score)
+        activate Joker
+        Joker --> GM: score modified
+        deactivate Joker
 
-GM --> Main: Print results
+        GM -> Session: playBlind()
+        activate Session
+        Session -> Blind: nextState(ante)
+        activate Blind
+        Blind --> Session: Next BlindState
+        deactivate Blind
+        Note over Session: executePendingCommands("NextBlind")
+        Session --> GM: transition logs
+        deactivate Session
+    end
+end
+
 deactivate GM
 
 @enduml
