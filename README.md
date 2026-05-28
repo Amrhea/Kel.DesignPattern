@@ -7,6 +7,7 @@ Sebuah aplikasi C++ untuk mendeteksi tipe poker hand dan mengkalkulasi skor deng
 Berikut adalah tautan dokumen analisis arsitektur proyek:
 
 - **[Analisis Design Pattern](docs/design-pattern-analysis.md)**: Penjelasan lengkap setiap pola desain beserta class diagram (Mermaid).
+- **[Pemisahan State Runtime](docs/runtime-state-separation.md)**: Arsitektur pemisahan state berdasarkan lifetime data (Persistent, Runtime, Temporary).
 - **[Sequence Diagram](docs/sequence-diagram.md)**: Alur runtime eksekusi program.
 - **[Dokumentasi Otomasi Workspace](AUTOMATION.md)**: Panduan otomatisasi CLI tool.
 - **[Changelog](CHANGELOG.md)**: Catatan riwayat perubahan proyek.
