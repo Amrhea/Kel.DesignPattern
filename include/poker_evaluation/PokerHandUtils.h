@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <array>
+#include <iostream>
 #include <vector>
 
 namespace PokerHandUtils {
@@ -125,6 +126,13 @@ inline Card FromInt(int card) {
         default: suit = '?'; break;
     }
     return {rank, suit};
+}
+
+inline void ShowCards(const Hand& hand) {
+    for (int i = 0; i < hand.GetCardCount(); ++i) {
+        Card card = hand.GetCard(i);
+        std::cout << "Card[" << i << "]: Rank " << card.rank << ", Suit " << card.suit << std::endl;
+    }
 }
 
 }  // namespace PokerHandUtils

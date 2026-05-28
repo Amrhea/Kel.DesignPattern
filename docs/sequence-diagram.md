@@ -37,7 +37,7 @@ sequenceDiagram
             GM->>HG: generateHand()
             HG-->>GM: Hand
             GM->>HH: evaluate(hand)
-            HH-->>GM: ChosenHand
+            HH-->>GM: HandEvaluation
             Note over GM,Joker: NotifyObservers(handName, score)
             Joker->>GM: Modify score (Jokers)
             GM->>Session: playBlind()

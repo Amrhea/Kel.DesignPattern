@@ -1,7 +1,7 @@
 #pragma once
 
 #include "hand_selection/Hand.h"
-#include "poker_evaluation/ChosenHand.h"
+#include "poker_evaluation/HandEvaluation.h"
 #include <iostream>
 #include <memory>
 
@@ -14,7 +14,7 @@ public:
     IPokerHandChecker() : nextChecker(nullptr) {}
     virtual ~IPokerHandChecker() {}
 
-    virtual ChosenHand Check(const Hand& hand) = 0;
+    virtual HandEvaluation Check(const Hand& hand) = 0;
     
     void SetNext(std::unique_ptr<IPokerHandChecker> next) {
         this->nextChecker = std::move(next);
@@ -25,14 +25,14 @@ public:
     }
 
     // Method untuk meneruskan permintaan ke checker berikutnya
-    virtual ChosenHand Handle(const Hand& hand) {
-        ChosenHand result = Check(hand);
+    virtual HandEvaluation Handle(const Hand& hand) {
+        HandEvaluation result = Check(hand);
         if (result.isValid()) {
             return result;
         }
         if (nextChecker != nullptr) {
             return nextChecker->Handle(hand);
         }
-        return ChosenHand(); // Return invalid if no checker matches
+        return HandEvaluation(); // Return invalid if no checker matches
     }
 };

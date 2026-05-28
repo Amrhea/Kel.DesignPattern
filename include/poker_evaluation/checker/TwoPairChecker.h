@@ -7,7 +7,7 @@ class TwoPairChecker : public IPokerHandChecker
     private:
         
     public:
-        ChosenHand Check(const Hand& hand) override;
+        HandEvaluation Check(const Hand& hand) override;
         bool IsTwoPair(const Hand& hand);    
 };
 

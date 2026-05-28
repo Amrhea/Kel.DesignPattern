@@ -54,7 +54,7 @@ loop While session.ante == 1
         
         GM -> HH: evaluate(hand)
         activate HH
-        HH --> GM: ChosenHand
+        HH --> GM: HandEvaluation
         deactivate HH
 
         Note over GM, Joker: NotifyObservers(handName, score)
