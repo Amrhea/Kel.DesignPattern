@@ -11,7 +11,7 @@ sequenceDiagram
     participant GM as GameManager
     participant Session as RuntimeSession
     participant Blind as BlindState
-    participant HH as HandHandler
+    participant PHE as PokerHandEvaluator
     participant HG as HandGenerator
     participant Joker as JokerCard
     participant Cmd as RewardCommand
@@ -36,8 +36,8 @@ sequenceDiagram
         else Play Blind
             GM->>HG: generateHand()
             HG-->>GM: Hand
-            GM->>HH: evaluate(hand)
-            HH-->>GM: ChosenHand
+            GM->>PHE: evaluate(hand)
+            PHE-->>GM: HandEvaluation
             Note over GM,Joker: NotifyObservers(handName, score)
             Joker->>GM: Modify score (Jokers)
             GM->>Session: playBlind()
@@ -72,15 +72,16 @@ sequenceDiagram
 
 | Order | Hand | Priority |
 |-------|------|----------|
-| 1 | Five of a Kind | Highest |
-| 2 | Royal Flush |
-| 3 | Straight Flush |
-| 4 | Four of a Kind |
-| 5 | Flush House |
-| 6 | Full House |
-| 7 | Flush |
-| 8 | Straight |
-| 9 | Three of a Kind |
-| 10 | Two Pair |
-| 11 | Pair |
-| 12 | High Card | Lowest |
+| 1 | Flush Five | Highest |
+| 2 | Five of a Kind | |
+| 3 | Royal Flush | |
+| 4 | Straight Flush | |
+| 5 | Four of a Kind | |
+| 6 | Flush House | |
+| 7 | Full House | |
+| 8 | Flush | |
+| 9 | Straight | |
+| 10 | Three of a Kind | |
+| 11 | Two Pair | |
+| 12 | Pair | |
+| 13 | High Card | Lowest |

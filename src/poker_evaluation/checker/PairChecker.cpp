@@ -3,20 +3,21 @@
 #include "poker_evaluation/PokerHandUtils.h"
 #include "poker_evaluation/PokerHandType.h"
 
-ChosenHand PairChecker::Check(const Hand& hand)
+HandEvaluation PairChecker::Check(const Hand& hand)
 {
     if (IsPair(hand))
     {
-        std::cout << "Detected PAIR\n";
-        return ChosenHand("Pair", PokerHandType::Pair, 20);
+        return HandEvaluation("Pair", PokerHandType::Pair);
     }
-    return ChosenHand();
+    return HandEvaluation();
 }
 
 bool PairChecker::IsPair(const Hand& hand)
 {
-    return hand.GetCardCount() == 5
+    return hand.GetCardCount() >= 2
         && PokerHandUtils::CountRanksWithOccurrences(hand, 2) == 1
-        && !PokerHandUtils::HasCount(hand, 3);
+        && !PokerHandUtils::HasCount(hand, 3)
+        && !PokerHandUtils::HasCount(hand, 4)
+        && !PokerHandUtils::HasCount(hand, 5);
 }
 

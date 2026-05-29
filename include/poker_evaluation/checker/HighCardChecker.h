@@ -7,6 +7,6 @@ class HighCardChecker : public IPokerHandChecker
     private:
         
     public:
-        ChosenHand Check(const Hand& hand) override;
+        HandEvaluation Check(const Hand& hand) override;
         bool IsHighCard(const Hand& hand);
 };

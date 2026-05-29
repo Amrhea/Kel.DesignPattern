@@ -3,14 +3,13 @@
 #include "poker_evaluation/PokerHandUtils.h"
 #include "poker_evaluation/PokerHandType.h"
 
-ChosenHand StraightChecker::Check(const Hand& hand)
+HandEvaluation StraightChecker::Check(const Hand& hand)
 {
     if (IsStraight(hand))
     {
-        std::cout << "Detected STRAIGHT\n";
-        return ChosenHand("Straight", PokerHandType::Straight, 60);
+        return HandEvaluation("Straight", PokerHandType::Straight);
     }
-    return ChosenHand();
+    return HandEvaluation();
 }
 
 bool StraightChecker::IsStraight(const Hand& hand)

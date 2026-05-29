@@ -5,7 +5,7 @@ participant "GameManager" as GM
 participant "RuntimeSession" as Session
 participant "BlindState" as Blind
 participant "HandGenerator" as HG
-participant "HandHandler" as HH
+participant "PokerHandEvaluator" as PHE
 participant "JokerCard" as Joker
 participant "RewardCommand" as Cmd
 
@@ -52,10 +52,10 @@ loop While session.ante == 1
         HG --> GM: Hand
         deactivate HG
         
-        GM -> HH: evaluate(hand)
-        activate HH
-        HH --> GM: ChosenHand
-        deactivate HH
+        GM -> PHE: evaluate(hand)
+        activate PHE
+        PHE --> GM: HandEvaluation
+        deactivate PHE
 
         Note over GM, Joker: NotifyObservers(handName, score)
         GM -> Joker: Update(handName, score)

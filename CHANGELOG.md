@@ -30,7 +30,7 @@ Semua perubahan penting dalam proyek **Kel.DesignPattern** akan didokumentasikan
 
 ### Ditambahkan
 - Implementasi `HandGenerator.cpp` untuk pembuatan kartu tangan secara otomatis.
-- Class model baru: `Card` dan `ChosenHand` untuk manajemen data yang lebih baik.
+- Class model baru: `Card` dan `HandEvaluation` untuk manajemen data yang lebih baik.
 - Sistem build **CMake** (`CMakeLists.txt`) menggantikan sistem lama.
 - Framework pengujian **Catch2** (`tests/catch.hpp`) dan unit test awal di `tests/test_checkers.cpp`.
 - Dokumentasi `AUTOMATION.md` untuk panduan workflow dan otomatisasi workspace.

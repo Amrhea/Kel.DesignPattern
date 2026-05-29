@@ -3,14 +3,13 @@
 #include "poker_evaluation/PokerHandUtils.h"
 #include "poker_evaluation/PokerHandType.h"
 
-ChosenHand RoyalFlushChecker::Check(const Hand& hand)
+HandEvaluation RoyalFlushChecker::Check(const Hand& hand)
 {
     if (IsRoyalFlush(hand))
     {
-        std::cout << "Detected ROYAL FLUSH\n";
-        return ChosenHand("Royal Flush", PokerHandType::RoyalFlush, 500);
+        return HandEvaluation("Royal Flush", PokerHandType::RoyalFlush);
     }
-    return ChosenHand();
+    return HandEvaluation();
 }
 
 bool RoyalFlushChecker::IsRoyalFlush(const Hand& hand)

@@ -1,6 +1,7 @@
 #include "run/GameManage.h"
 #include "hand_selection/Hand.h"
-#include "poker_evaluation/HandHandler.h"
+#include "poker_evaluation/PokerHandEvaluator.h"
+#include "poker_evaluation/PokerHandUtils.h"
 #include "scoring/ConcreteScoreCalculators.h"
 #include "session/RuntimeSession.h"
 #include "blind/BlindState.h"
@@ -33,7 +34,7 @@ void GameManager::RunSession() {
 
     // Initialize RuntimeSession Model
     RuntimeSession session;
-    HandHandler handHandler;
+    PokerHandEvaluator handEvaluator;
 
     // Setup player, gold, jokers (as observers)
     HandPlayer player;
@@ -72,13 +73,13 @@ void GameManager::RunSession() {
             std::cout << "[System] Generating randomized hand..." << std::endl;
             Hand hand = handGenerator->generateHand();
             std::cout << "[System] Current Hand:" << std::endl;
-            handHandler.ShowCards(hand);
+            PokerHandUtils::ShowCards(hand);
 
             std::cout << "[System] Evaluating hand via Template Method pattern..." << std::endl;
             BonusScoreCalculator calculator;
-            int finalScore = calculator.CalculateScore(hand, handHandler);
+            int finalScore = calculator.CalculateScore(hand, handEvaluator);
 
-            ChosenHand result = handHandler.evaluate(hand);
+            HandEvaluation result = handEvaluator.Evaluate(hand);
 
             if (result.isValid()) {
                 std::cout << ">> Checked Hand: " << result.handName << std::endl;
