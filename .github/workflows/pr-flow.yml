@@ -1,0 +1,84 @@
+name: PR Workflow & Auto-Merge
+
+on:
+  pull_request:
+    branches: [ "main" ]
+  push:
+    branches: [ "main" ]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  # 1. Review PR: Build, Test, and Format Check
+  review:
+    name: Build, Test & Format
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.head_ref }}
+
+    - name: Run Clang-Format Auto-Fix
+      if: github.event_name == 'pull_request'
+      uses: CidrBlock/clang-format-action@v2.0.0
+      with:
+        clang-format-version: '15'
+        check-path: 'src include tests'
+        exclude-path: 'tests/catch.hpp'
+
+    # Auto-commit formatting fixes if clang-format modified any files
+    - name: Commit Formatting Fixes
+      if: github.event_name == 'pull_request'
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: "style: auto-format code with clang-format"
+
+    - name: Configure CMake
+      run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build Project
+      run: cmake --build build --config Release
+
+    - name: Run Unit Tests
+      run: ./build/bin/TestRunner
+
+  # 2. Auto-Merge if PR is green
+  automerge:
+    name: Auto-Merge PR
+    needs: review
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Auto-merge PR
+      uses: pascalgn/automerge-action@v0.16.4
+      env:
+        GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        MERGE_LABELS: "automerge"
+        MERGE_METHOD: "merge"
+
+  # 3. Post-Merge: Update Documentation
+  docs:
+    name: Update Documentation
+    needs: review
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Generate/Update Documentation
+      run: |
+        echo "Updating documentation..."
+        # Run doc generation commands or scripts here.
+        # Example: Doxygen, Sphinx, or custom diagram generators.
+        mkdir -p docs
+        echo "Last updated: $(date)" > docs/last_updated.txt
+
+    - name: Commit Documentation Updates
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: "docs: update auto-generated documentation"
+        file_pattern: "docs/*"
