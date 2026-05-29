@@ -23,7 +23,7 @@ Card Hand::GetCard(int index) const {
     if (index >= 0 && index < static_cast<int>(cards.size())) {
         return cards[index];
     }
-    return {-1, ' '};  // Invalid card
+    return Card();  // Invalid card
 }
 
 int Hand::GetCardCount() const {

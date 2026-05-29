@@ -11,22 +11,23 @@ Pattern utama yang terimplementasi adalah **Chain of Responsibility**.
 - `IPokerHandChecker` berperan sebagai abstract handler.
 - Setiap checker konkret mewarisi `IPokerHandChecker`.
 - Method `Handle(const Hand&)` akan mencoba `Check(...)` pada checker saat ini lalu meneruskan ke `nextChecker` jika gagal.
-- `HandHandler` membangun dan memegang urutan chain.
+- `PokerHandEvaluator` membangun dan memegang urutan chain.
 
 Urutan chain saat ini:
 
-1. `FiveOfKindChecker`
-2. `RoyalFlushChecker`
-3. `StraightFlushChecker`
-4. `FourOfKindChecker`
-5. `FlushHouseChecker`
-6. `FullHouseChecker`
-7. `FlushChecker`
-8. `StraightChecker`
-9. `ThreeOfKindChecker`
-10. `TwoPairChecker`
-11. `PairChecker`
-12. `HighCardChecker`
+1. `FlushFiveChecker`
+2. `FiveOfKindChecker`
+3. `RoyalFlushChecker`
+4. `StraightFlushChecker`
+5. `FourOfKindChecker`
+6. `FlushHouseChecker`
+7. `FullHouseChecker`
+8. `FlushChecker`
+9. `StraightChecker`
+10. `ThreeOfKindChecker`
+11. `TwoPairChecker`
+12. `PairChecker`
+13. `HighCardChecker`
 
 ### 2. Abstract Class / Polymorphism
 
@@ -74,7 +75,7 @@ Mekanisme skip reward dibungkus dengan **Command Pattern** untuk memfasilitasi e
 
 ### 9. Memory Management (RAII)
 
-Aplikasi menggunakan modern C++ (`std::unique_ptr` & `std::shared_ptr`) untuk manajemen memori otomatis dalam `HandHandler`, state blind, command queue, dan strategy context di `GameManager`. Ini menjamin tidak ada kebocoran memori.
+Aplikasi menggunakan modern C++ (`std::unique_ptr` & `std::shared_ptr`) untuk manajemen memori otomatis dalam `PokerHandEvaluator`, state blind, command queue, dan strategy context di `GameManager`. Ini menjamin tidak ada kebocoran memori.
 
 ## Class Diagram
 
@@ -92,20 +93,16 @@ classDiagram
 
     class IPokerHandChecker {
         #std::unique_ptr~IPokerHandChecker~ nextChecker
-        +Check(const Hand&) ChosenHand
+        +Check(const Hand&) HandEvaluation
         +SetNext(std::unique_ptr~IPokerHandChecker~)
         +GetNext() IPokerHandChecker*
-        +Handle(const Hand&) ChosenHand
+        +Handle(const Hand&) HandEvaluation
     }
 
-    class HandHandler {
+    class PokerHandEvaluator {
         -std::unique_ptr~IPokerHandChecker~ head
-        -vector~string~ checkerOrder
         +AddChecker(std::unique_ptr~IPokerHandChecker~)
-        +Handle(const Hand&) ChosenHand
-        +ShowCards(const Hand&) const
-        +ShowCheckerOrder() const
-        +GetCheckerNameByOrder(int) string
+        +Evaluate(const Hand&) HandEvaluation
     }
 
     class FiveOfKindChecker
@@ -121,9 +118,9 @@ classDiagram
     class PairChecker
     class HighCardChecker
 
-    HandHandler --> IPokerHandChecker : head
+    PokerHandEvaluator --> IPokerHandChecker : head
     IPokerHandChecker --> Hand : checks
-    HandHandler --> Hand : handles
+    PokerHandEvaluator --> Hand : handles
 
     FiveOfKindChecker --|> IPokerHandChecker
     RoyalFlushChecker --|> IPokerHandChecker
@@ -182,8 +179,8 @@ classDiagram
 
     class ScoreCalculator {
         <<abstract>>
-        +CalculateScore(Hand, HandHandler) int
-        #CheckPokerHand() ChosenHand
+        +CalculateScore(Hand, PokerHandEvaluator) int
+        #CheckPokerHand() HandEvaluation
         #GetBaseScore() int
         #ModifyScore(string, int) int
     }

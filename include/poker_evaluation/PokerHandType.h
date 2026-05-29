@@ -12,5 +12,6 @@ enum class PokerHandType {
     StraightFlush,
     RoyalFlush,
     FiveOfKind,
-    FlushHouse
+    FlushHouse,
+    FlushFive
 };

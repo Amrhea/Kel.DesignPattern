@@ -3,14 +3,13 @@
 #include "poker_evaluation/PokerHandUtils.h"
 #include "poker_evaluation/PokerHandType.h"
 
-ChosenHand FlushChecker::Check(const Hand& hand)
+HandEvaluation FlushChecker::Check(const Hand& hand)
 {
     if (IsFlush(hand))
     {
-        std::cout << "Detected FLUSH\n";
-        return ChosenHand("Flush", PokerHandType::Flush, 80);
+        return HandEvaluation("Flush", PokerHandType::Flush);
     }
-    return ChosenHand();
+    return HandEvaluation();
 }
 
 bool FlushChecker::IsFlush(const Hand& hand)
