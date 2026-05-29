@@ -1,4 +1,3 @@
-#define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 #include "hand_selection/Hand.h"
 #include "hand_selection/SelectionManager.h"
@@ -24,6 +23,15 @@ TEST_CASE("Subsystem B: Selection Tests", "[subsystem_b]") {
         manager.Select(1);
         manager.Select(1);
         REQUIRE(manager.GetSelection().Count() == 1);
+        manager.Undo();
+        REQUIRE(manager.GetSelection().Count() == 0);
+    }
+
+    SECTION("Invalid Unselect Handling") {
+        manager.Unselect(5);
+        REQUIRE(manager.GetSelection().Count() == 0);
+        manager.Undo();
+        REQUIRE(manager.GetSelection().Count() == 0);
     }
 
     SECTION("Max-5 Enforcement") {

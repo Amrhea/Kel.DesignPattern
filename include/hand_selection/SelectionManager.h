@@ -5,6 +5,7 @@
 #include "hand_selection/SelectionValidator.h"
 #include <memory>
 #include <vector>
+#include <algorithm>
 
 class SelectionManager {
 private:
@@ -13,12 +14,20 @@ private:
 
 public:
     void Select(int index) {
+        const auto& indices = currentSelection.GetIndices();
+        if (std::find(indices.begin(), indices.end(), index) != indices.end()) {
+            return;
+        }
         auto cmd = std::make_unique<SelectCardCommand>(index);
         cmd->Execute(currentSelection);
         history.push_back(std::move(cmd));
     }
 
     void Unselect(int index) {
+        const auto& indices = currentSelection.GetIndices();
+        if (std::find(indices.begin(), indices.end(), index) == indices.end()) {
+            return;
+        }
         auto cmd = std::make_unique<UnselectCardCommand>(index);
         cmd->Execute(currentSelection);
         history.push_back(std::move(cmd));

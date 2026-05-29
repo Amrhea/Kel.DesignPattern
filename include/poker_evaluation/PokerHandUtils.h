@@ -125,7 +125,7 @@ inline Card FromInt(int card) {
         case 3: suit = 'S'; break;
         default: suit = '?'; break;
     }
-    return {rank, suit};
+    return {card, rank, suit};
 }
 
 inline void ShowCards(const Hand& hand) {
