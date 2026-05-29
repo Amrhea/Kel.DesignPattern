@@ -98,3 +98,13 @@ Untuk menjamin pemisahan state berjalan dengan benar, batasan-batasan berikut di
 4. **Pemberian Reward Finansial di Akhir**:
    * `blindScore` tidak boleh ditambahkan langsung ke saldo `money` selama permainan berjalan. 
    * Uang reward dihitung dan ditambahkan ke saldo pemain hanya ketika blind dinyatakan menang (Blind End).
+
+---
+
+## Pemetaan State ke Kode Konkret
+
+Model pembagian layer state dalam dokumen ini diwujudkan secara nyata dalam kode program melalui kelas-kelas berikut:
+
+1. **Persistent State** (`ante`, `blindIndex`) dikelola oleh kelas `BlindManager` di [BlindManager.h](file:///D:/CODE/C++/Kel.DesignPattern/include/blind/BlindManager.h).
+2. **Runtime State** (`currentScore`, `handsRemaining`, `discardsRemaining`, `status`) dikapsulasi di dalam kelas `RoundState` di [BlindManager.h](file:///D:/CODE/C++/Kel.DesignPattern/include/blind/BlindManager.h).
+3. **Temporary State** during hand play diwakili secara tidak langsung saat pemanggilan `ScoreCalculator` menggunakan kembalian evaluasi `HandEvaluation` dari [PokerHandEvaluator.cpp](file:///D:/CODE/C++/Kel.DesignPattern/src/poker_evaluation/PokerHandEvaluator.cpp).

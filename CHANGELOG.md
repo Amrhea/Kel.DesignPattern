@@ -2,6 +2,19 @@
 
 Semua perubahan penting dalam proyek **Kel.DesignPattern** akan didokumentasikan di sini.
 
+## [Released] - 2026-05-29
+
+### Ditambahkan (PR #35)
+- **Subsystem A (Deck & Card Lifecycle)**: Implementasi siklus dek, penambahan ID kartu unik, serta pemisah servis draw/discard.
+- **Subsystem B (Hand Selection)**: Sistem seleksi kartu tangan berbasis Command pattern dengan fungsionalitas Undo dan validasi batas maksimal 5 kartu.
+- **Subsystem C (Poker Hand Evaluation)**: Refaktorisasi deteksi kombinasi kartu poker ke Chain of Responsibility (CoR) terisolasi dengan class evaluasi `HandEvaluation`, serta penambahan deteksi tipe kombinasi kartu `Flush Five` (prioritas tertinggi).
+- **Subsystem F (Blind & Round State)**: Implementasi pengelola progresi blind (`BlindManager`) dan pelacak kondisi ronde (`RoundState`) terpisah.
+- File pengujian unit test baru: `tests/test_deck_hand.cpp`, `tests/test_selection.cpp`, dan `tests/test_blind_round.cpp`.
+
+### Diubah
+- Peningkatan diagram kelas dan dokumentasi visual pada [design-pattern-analysis.md](file:///D:/CODE/C++/Kel.DesignPattern/docs/design-pattern-analysis.md) dan [runtime-state-separation.md](file:///D:/CODE/C++/Kel.DesignPattern/docs/runtime-state-separation.md).
+- Penghapusan kode `HandHandler` lama dan pembaruan struktur file di `README.md`.
+
 ## [Released] - 2026-05-28
 
 ### Ditambahkan

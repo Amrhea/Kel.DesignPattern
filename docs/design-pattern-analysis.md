@@ -105,6 +105,7 @@ classDiagram
         +Evaluate(const Hand&) HandEvaluation
     }
 
+    class FlushFiveChecker
     class FiveOfKindChecker
     class RoyalFlushChecker
     class StraightFlushChecker
@@ -122,6 +123,7 @@ classDiagram
     IPokerHandChecker --> Hand : checks
     PokerHandEvaluator --> Hand : handles
 
+    FlushFiveChecker --|> IPokerHandChecker
     FiveOfKindChecker --|> IPokerHandChecker
     RoyalFlushChecker --|> IPokerHandChecker
     StraightFlushChecker --|> IPokerHandChecker
@@ -225,6 +227,32 @@ classDiagram
         +playBlind() vector~string~
     }
 
+    class Blind {
+        <<abstract>>
+        +GetData(int) BlindData
+    }
+    class SmallBlindVariant
+    class BigBlindVariant
+    class BossBlindVariant
+    class BlindManager {
+        -int ante
+        -int blindIndex
+        -vector~unique_ptr~Blind~~ blinds
+        +GetCurrentBlindData() BlindData
+        +NextBlind()
+        +GetAnte() int
+    }
+    class RoundState {
+        -int targetScore
+        -int currentScore
+        -int handsRemaining
+        -int discardsRemaining
+        -RoundStatus status
+        +AddScore(int)
+        +UseHand() bool
+        +UseDiscard() bool
+    }
+
     Subject <|-- GameManager
     Observer <|-- JokerCard
     ScoreCalculator <|-- StandardScoreCalculator
@@ -237,15 +265,23 @@ classDiagram
     RewardCommand <|-- BonusHandCommand
     RewardCommand <|-- FreePlayingCardCommand
 
+    Blind <|-- SmallBlindVariant
+    Blind <|-- BigBlindVariant
+    Blind <|-- BossBlindVariant
+
     GameManager --> HandGenerator : manages
     GameManager --> ScoringRule : uses
     GameManager --> BlindRule : uses
     GameManager --> RewardRule : uses
     GameManager ..> ScoreCalculator : uses
     GameManager ..> RuntimeSession : orchestrates
+    GameManager --> BlindManager : manages
 
     RuntimeSession --> BlindState : currentBlind
     RuntimeSession --> RewardCommand : pendingCommands
+
+    BlindManager --> Blind : manages
+    RoundState --> BlindManager : queries data
 
     HandPlayer --> JokerCard : owns
 ```
