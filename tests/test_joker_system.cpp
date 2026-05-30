@@ -51,10 +51,14 @@ TEST_CASE("JokerManager accumulation", "[joker]") {
     std::vector<Card> cards;
     ScoreContext context(PokerHandType::Flush, "Flush", 35, 4, cards);
     
-    JokerManager manager; // Use local manager for test isolation
-    manager.RegisterObserver(new ChipsBoostJoker(15)); // 35 + 15 = 50
-    manager.RegisterObserver(new MultiplierJoker(6));   // 4 + 6 = 10
-    manager.RegisterObserver(new ConditionalJoker(PokerHandType::Flush, 10)); // 10 + 10 = 20
+    JokerManager& manager = JokerManager::GetInstance();
+    manager.ClearObservers();
+    auto joker1 = std::make_unique<ChipsBoostJoker>(15); // 35 + 15 = 50
+    auto joker2 = std::make_unique<MultiplierJoker>(6);   // 4 + 6 = 10
+    auto joker3 = std::make_unique<ConditionalJoker>(PokerHandType::Flush, 10); // 10 + 10 = 20
+    manager.RegisterObserver(joker1.get());
+    manager.RegisterObserver(joker2.get());
+    manager.RegisterObserver(joker3.get());
     
     manager.NotifyObservers(context);
     

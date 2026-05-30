@@ -70,8 +70,8 @@ TEST_CASE("PokerHandEvaluator - Priority and Special Hands", "[evaluator]") {
 TEST_CASE("Observer Pattern Tests - Joker Cards", "[observer]") {
     class TestSubject : public Subject {
     public:
-        void TriggerPlay(const std::string& name, int& score) {
-            NotifyObservers(name, score);
+        void TriggerPlay(ScoreContext& context) {
+            NotifyObservers(context);
         }
     };
 
@@ -82,14 +82,15 @@ TEST_CASE("Observer Pattern Tests - Joker Cards", "[observer]") {
     subject.RegisterObserver(&joker1);
     subject.RegisterObserver(&joker2);
 
-    int score = 100;
-    subject.TriggerPlay("Flush", score);
-    REQUIRE(score == 135);
+    std::vector<Card> cards;
+    ScoreContext context(PokerHandType::Flush, "Flush", 100, 1, cards);
+    subject.TriggerPlay(context);
+    REQUIRE(context.chips == 135);
 
     subject.RemoveObserver(&joker1);
-    score = 100;
-    subject.TriggerPlay("Flush", score);
-    REQUIRE(score == 125);
+    ScoreContext context2(PokerHandType::Flush, "Flush", 100, 1, cards);
+    subject.TriggerPlay(context2);
+    REQUIRE(context2.chips == 125);
 }
 
 TEST_CASE("Strategy Pattern Tests - Rules", "[strategy]") {

@@ -126,6 +126,7 @@ void GameManager::RunSession() {
                     if (shop.BuyItem(shopChoice, session)) {
                         std::cout << "[System] Item purchased!" << std::endl;
                         // Register new joker as observer if it was a joker reward
+                        jokerManager.ClearObservers();
                         for (auto& joker : session.jokers) {
                             jokerManager.RegisterObserver(joker.get());
                         }

@@ -34,8 +34,4 @@ void Hand::Clear() {
     cards.clear();
 }
 
-void Hand::ShowCards() const {
-    for (size_t i = 0; i < cards.size(); ++i) {
-        std::cout << "Card[" << i << "]: Rank " << cards[i].rank << ", Suit " << cards[i].suit << std::endl;
-    }
-}
+

@@ -31,7 +31,9 @@ TEST_CASE("JokerRewardCommand adds joker to session", "[reward]") {
     cmd.execute(session);
 
     REQUIRE(session.jokers.size() == initialSize + 1);
-    REQUIRE(session.jokers.back()->getName() == "Test Joker");
+    auto retrievedJoker = std::dynamic_pointer_cast<JokerCard>(session.jokers.back());
+    REQUIRE(retrievedJoker != nullptr);
+    REQUIRE(retrievedJoker->getName() == "Test Joker");
 }
 
 TEST_CASE("ShopSystem buying items", "[shop]") {

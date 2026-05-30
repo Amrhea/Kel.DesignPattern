@@ -1,6 +1,7 @@
 #pragma once
 #include "reward/RewardCommand.h"
 #include "poker_evaluation/PokerHandType.h"
+#include "session/RuntimeSession.h"
 
 class PlanetCardCommand : public RewardCommand {
 private:

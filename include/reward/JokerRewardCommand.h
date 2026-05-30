@@ -1,6 +1,7 @@
 #pragma once
 #include "reward/RewardCommand.h"
 #include "joker/JokerCard.h"
+#include "session/RuntimeSession.h"
 #include <memory>
 
 class JokerRewardCommand : public RewardCommand {

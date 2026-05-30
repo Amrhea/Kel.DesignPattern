@@ -10,6 +10,6 @@ void JokerCard::apply(ScoreContext& context) {
     context.chips += bonusPoints;
 }
 
-std::string JokerCard::GetName() const {
+std::string JokerCard::getName() const {
     return name;
 }
