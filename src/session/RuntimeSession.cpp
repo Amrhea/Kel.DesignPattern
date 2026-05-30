@@ -2,10 +2,17 @@
 #include "blind/BlindState.h"
 #include "blind/SmallBlindState.h"
 #include "reward/RewardCommand.h"
+#include "card/Deck.h"
 
 RuntimeSession::RuntimeSession() 
     : ante(1), remainingPlays(4), gold(4), currentBlind(std::make_shared<SmallBlindState>()) {
     
+    // Initialize standard deck
+    Deck stdDeck = DeckFactory::CreateStandardDeck();
+    while (stdDeck.RemainingCount() > 0) {
+        persistentDeck.push_back(stdDeck.Draw());
+    }
+
     // Default Hand Scores
     handScores[PokerHandType::HighCard] = HandScoreData(5, 1);
     handScores[PokerHandType::Pair] = HandScoreData(10, 2);

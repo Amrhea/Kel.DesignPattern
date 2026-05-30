@@ -1,9 +1,22 @@
 #include "catch.hpp"
 #include "scoring/HandScore.h"
 #include "scoring/ScoringRule.h"
+#include "scoring/ScoreCalculator.h"
+#include "scoring/ConcreteScoreCalculators.h"
 #include "poker_evaluation/PokerHandType.h"
+#include "poker_evaluation/PokerHandUtils.h"
+#include "hand_selection/Hand.h"
 
-TEST_CASE("Scoring Subsystem Tests", "[scoring]") {
+// Helper function to create a Hand from a list of ints using the FromInt utility
+static Hand CreateHand(std::vector<int> cards) {
+    Hand hand;
+    for (int cardInt : cards) {
+        hand.AddCard(PokerHandUtils::FromInt(cardInt));
+    }
+    return hand;
+}
+
+TEST_CASE("Subsystem D: Scoring Subsystem Tests", "[subsystem_d]") {
     HandScoreTable table;
     table[PokerHandType::Pair] = HandScoreData(10, 2, 1);
     table[PokerHandType::ThreeOfKind] = HandScoreData(30, 3, 1);
@@ -26,7 +39,6 @@ TEST_CASE("Scoring Subsystem Tests", "[scoring]") {
     }
 
     SECTION("Planet-driven level upgrades") {
-        // Simulating a "planet-driven" upgrade by modifying the table
         table[PokerHandType::Pair] = HandScoreData(15, 3, 2);
         PlayedHandResult result = scoringRule.calculateScore(PokerHandType::Pair, table);
         REQUIRE(result.level == 2);
@@ -37,14 +49,9 @@ TEST_CASE("Scoring Subsystem Tests", "[scoring]") {
 
     SECTION("PlayedHandResult immutability") {
         PlayedHandResult result = scoringRule.calculateScore(PokerHandType::Pair, table);
-        // The following lines would fail to compile if immutability was not enforced
-        // result.chips = 100; 
-        // result.finalScore = 1000;
-        
         REQUIRE(result.chips == 10);
         REQUIRE(result.finalScore == 20);
         
-        // Confirming it's a value object with const members
         static_assert(std::is_const<decltype(result.chips)>::value, "chips should be const");
         static_assert(std::is_const<decltype(result.finalScore)>::value, "finalScore should be const");
     }
@@ -54,5 +61,20 @@ TEST_CASE("Scoring Subsystem Tests", "[scoring]") {
         REQUIRE(result.chips == 0);
         REQUIRE(result.mult == 0);
         REQUIRE(result.finalScore == 0);
+    }
+}
+
+TEST_CASE("Subsystem D: Template Method Pattern Tests - Score Calculator", "[subsystem_d_template]") {
+    PokerHandEvaluator handler;
+    Hand hand = CreateHand({0, 13, 1, 2, 3});
+
+    SECTION("Standard Score Calculator") {
+        StandardScoreCalculator calc;
+        REQUIRE(calc.CalculateScore(hand, handler) == 20);
+    }
+
+    SECTION("Bonus Score Calculator") {
+        BonusScoreCalculator calc;
+        REQUIRE(calc.CalculateScore(hand, handler) == 30);
     }
 }

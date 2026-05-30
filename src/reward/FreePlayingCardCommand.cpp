@@ -11,4 +11,5 @@ std::string FreePlayingCardCommand::getTiming() const {
 
 void FreePlayingCardCommand::execute(RuntimeSession& session) {
     session.deck.push_back("PlayingCard");
+    session.persistentDeck.push_back(Card(static_cast<int>(session.persistentDeck.size()), 14, 'S'));
 }

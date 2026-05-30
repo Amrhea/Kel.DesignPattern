@@ -1,11 +1,9 @@
 #pragma once
 
-#include "joker/Subject.h"
-#include "hand_selection/HandGenerator.h"
-#include "run/HandPlayer.h"
-#include "scoring/ScoringRule.h"
-#include "blind/BlindRule.h"
-#include "reward/RewardRule.h"
+#include "run/RunState.h"
+#include "run/AnteManager.h"
+#include "run/RoundManager.h"
+#include "session/RuntimeSession.h"
 #include <memory>
 
 class GameManager
@@ -13,12 +11,21 @@ class GameManager
     private:
         static GameManager* instance;
 
-        HandGenerator* handGenerator;
-        std::unique_ptr<ScoringRule> scoringRule;
-        std::unique_ptr<BlindRule> blindRule;
-        std::unique_ptr<RewardRule> rewardRule;
+        RunState state;
+        std::unique_ptr<RuntimeSession> session;
+        std::unique_ptr<AnteManager> anteManager;
+        std::unique_ptr<RoundManager> roundManager;
 
         GameManager();
+
+        void HandleMainMenu();
+        void HandleStartRun();
+        void HandleSelectBlind();
+        void HandlePlayHand();
+        void HandleResolveScore();
+        void HandleReward();
+        void HandleShop();
+        void HandleGameOver();
 
     public:
         static GameManager* GetInstance();

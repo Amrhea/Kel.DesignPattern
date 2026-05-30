@@ -5,6 +5,8 @@
 #include "scoring/HandScore.h"
 #include "joker/JokerCard.h"
 
+#include "card/Card.h"
+
 class BlindState;
 class RewardCommand;
 
@@ -14,6 +16,7 @@ public:
     int remainingPlays;
     int gold;
     std::vector<std::string> deck;
+    std::vector<Card> persistentDeck;
     std::shared_ptr<BlindState> currentBlind;
     std::vector<std::shared_ptr<RewardCommand>> pendingCommands;
     
