@@ -1,8 +1,10 @@
 #pragma once
 #include <string>
 
+struct ScoreContext;
+
 class Observer {
 public:
     virtual ~Observer() = default;
-    virtual void OnHandPlayed(const std::string& handName, int& score) = 0;
+    virtual void apply(ScoreContext& context) = 0;
 };

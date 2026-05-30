@@ -27,6 +27,8 @@ add_executable(TestRunner
     tests/test_blind_round.cpp
     tests/test_deck_hand.cpp
     tests/test_selection.cpp
+    tests/test_rewards_subsystem.cpp
+    tests/test_joker_system.cpp
     ${SOURCES}
 )
 

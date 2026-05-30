@@ -2,6 +2,8 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include "scoring/HandScore.h"
+#include "joker/JokerCard.h"
 
 class BlindState;
 class RewardCommand;
@@ -10,9 +12,13 @@ class RuntimeSession {
 public:
     int ante;
     int remainingPlays;
+    int gold;
     std::vector<std::string> deck;
     std::shared_ptr<BlindState> currentBlind;
     std::vector<std::shared_ptr<RewardCommand>> pendingCommands;
+    
+    HandScoreTable handScores;
+    std::vector<std::shared_ptr<Observer>> jokers;
 
     RuntimeSession();
     ~RuntimeSession();
@@ -20,4 +26,8 @@ public:
     std::vector<std::string> executePendingCommands(const std::string& timing);
     std::vector<std::string> skipBlind();
     std::vector<std::string> playBlind();
+
+    void addGold(int amount);
+    void addJoker(std::shared_ptr<Observer> joker);
+    void upgradeHand(PokerHandType handType, int chipsBonus, int multBonus);
 };
