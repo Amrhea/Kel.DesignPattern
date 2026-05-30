@@ -27,10 +27,11 @@ D:\CODE\C++\Kel.DesignPattern\
 │   ├── joker/                    # Observer & Subject Joker
 │   ├── poker_evaluation/         # CoR Checkers & PokerHandEvaluator
 │   ├── reward/                   # Command Reward (Command Pattern)
-│   ├── run/                      # GameManager Facade & HandPlayer
+│   ├── run/                      # GameManager, AnteManager, RoundManager
 │   ├── scoring/                  # Template Method & Scoring Rule
-│   └── session/                  # Sesi Runtime Game
-├── src/                          # Folder Implementasi untuk 8 Subsystem
+│   ├── session/                  # Sesi Runtime Game
+│   └── state/                    # Pemisahan State (Persistent, Runtime, Temporary)
+├── src/                          # Folder Implementasi untuk 9 Subsystem
 │   ├── blind/
 │   ├── hand_selection/
 │   ├── joker/
@@ -38,16 +39,22 @@ D:\CODE\C++\Kel.DesignPattern\
 │   ├── reward/
 │   ├── run/
 │   ├── scoring/
+│   ├── state/
 │   └── main.cpp                  # Entry point minimal (bootstrap GameManager)
 ├── docs/                         # Diagram & Analisis
-├── tests/                        # Unit Tests (Catch2)
-│   ├── test_blind_progression.cpp
-│   ├── test_blind_round.cpp
-│   ├── test_checkers.cpp
-│   ├── test_deck_hand.cpp
-│   ├── test_reward_commands.cpp
+├── tests/                        # Unit & Integration Tests (Catch2)
+│   ├── test_card.cpp
+│   ├── test_hand_selection.cpp
+│   ├── test_poker_evaluation.cpp
 │   ├── test_scoring.cpp
-│   └── test_selection.cpp
+│   ├── test_joker.cpp
+│   ├── test_blind.cpp
+│   ├── test_reward.cpp
+│   ├── test_persistent_state.cpp
+│   ├── test_runtime_state.cpp
+│   ├── test_score_context.cpp
+│   ├── test_boundary_enforcement.cpp
+│   └── test_run_integration.cpp
 ├── CMakeLists.txt
 ├── .gitignore
 └── README.md

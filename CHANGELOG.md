@@ -2,6 +2,18 @@
 
 Semua perubahan penting dalam proyek **Kel.DesignPattern** akan didokumentasikan di sini.
 
+## [Released] - 2026-05-30
+
+### Ditambahkan (PR #37)
+- **Subsystem H (Run & CLI Machine)**: Implementasi `GameManager` state machine facade, `AnteManager`, `RoundManager`, dan alur CLI state machine loop.
+- **Subsystem I (Runtime State Separation)**: Pembagian state terpisah menjadi persistent (`RunPersistentState`), runtime (`BlindRuntimeState`), temporary (`ScoreContext`), dan composite root (`RunSessionState`).
+- File pengujian test suite subsystem baru: `test_card.cpp`, `test_hand_selection.cpp`, `test_poker_evaluation.cpp`, `test_scoring.cpp`, `test_joker.cpp`, `test_blind.cpp`, `test_reward.cpp`, dan `test_run_integration.cpp` (menggantikan unit test lama).
+
+### Diubah
+- Refaktorisasi `RuntimeSession` untuk mengomposisi state layers dengan backward compatibility via reference fields.
+- Sinkronisasi modifier Joker (`ChipsBoostJoker`, `MultBoostJoker`, `FlushMultJoker`) dengan warisan interface `Joker`.
+- Pembaruan diagram sequence dan diagram kelas di folder `docs/`.
+
 ## [Released] - 2026-05-29
 
 ### Ditambahkan (PR #35)

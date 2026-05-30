@@ -105,6 +105,7 @@ Untuk menjamin pemisahan state berjalan dengan benar, batasan-batasan berikut di
 
 Model pembagian layer state dalam dokumen ini diwujudkan secara nyata dalam kode program melalui kelas-kelas berikut:
 
-1. **Persistent State** (`ante`, `blindIndex`) dikelola oleh kelas `BlindManager` di [BlindManager.h](file:///D:/CODE/C++/Kel.DesignPattern/include/blind/BlindManager.h).
-2. **Runtime State** (`currentScore`, `handsRemaining`, `discardsRemaining`, `status`) dikapsulasi di dalam kelas `RoundState` di [BlindManager.h](file:///D:/CODE/C++/Kel.DesignPattern/include/blind/BlindManager.h).
-3. **Temporary State** during hand play diwakili secara tidak langsung saat pemanggilan `ScoreCalculator` menggunakan kembalian evaluasi `HandEvaluation` dari [PokerHandEvaluator.cpp](file:///D:/CODE/C++/Kel.DesignPattern/src/poker_evaluation/PokerHandEvaluator.cpp).
+1. **Persistent State** (`ante`, `money`, `jokers`, `pendingCommands`, `currentBlind`) dikelola oleh kelas [RunPersistentState](file:///D:/CODE/C++/Kel.DesignPattern/include/state/RunPersistentState.h).
+2. **Runtime State** (`blindScore`, `remainingHands`, `remainingDiscards`) dikapsulasi di dalam kelas [BlindRuntimeState](file:///D:/CODE/C++/Kel.DesignPattern/include/state/BlindRuntimeState.h).
+3. **Temporary State** during hand play diwakili secara langsung oleh [ScoreContext](file:///D:/CODE/C++/Kel.DesignPattern/include/state/ScoreContext.h) yang dilewatkan ke modifier Joker dan hancur segera setelah scoring selesai.
+4. **Composite State Root** mengomposisi keduanya di dalam [RunSessionState](file:///D:/CODE/C++/Kel.DesignPattern/include/state/RunSessionState.h).

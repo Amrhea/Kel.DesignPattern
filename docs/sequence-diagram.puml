@@ -4,7 +4,7 @@ actor Main
 participant "GameManager" as GM
 participant "RuntimeSession" as Session
 participant "BlindState" as Blind
-participant "HandGenerator" as HG
+participant "RoundManager" as RM
 participant "PokerHandEvaluator" as PHE
 participant "JokerCard" as Joker
 participant "RewardCommand" as Cmd
@@ -47,21 +47,23 @@ loop While session.ante == 1
         Session --> GM: execution & transition logs
         deactivate Session
     else Play Blind
-        GM -> HG: generateHand()
-        activate HG
-        HG --> GM: Hand
-        deactivate HG
-        
-        GM -> PHE: evaluate(hand)
-        activate PHE
-        PHE --> GM: HandEvaluation
-        deactivate PHE
+        GM -> RM: RunRound(Session, BlindData)
+        activate RM
+        Note over RM: Draw/refill player Hand from shuffled Deck
+        loop While round.status == PLAYING
+            RM -> PHE: evaluate(playedHand)
+            activate PHE
+            PHE --> RM: HandEvaluation
+            deactivate PHE
 
-        Note over GM, Joker: NotifyObservers(handName, score)
-        GM -> Joker: Update(handName, score)
-        activate Joker
-        Joker --> GM: score modified
-        deactivate Joker
+            Note over RM, Joker: JokerManager::ApplyJokers(persistentState, context)
+            RM -> Joker: apply(context)
+            activate Joker
+            Joker --> RM: context modified
+            deactivate Joker
+        end
+        RM --> GM: win/loss result
+        deactivate RM
 
         GM -> Session: playBlind()
         activate Session
