@@ -112,10 +112,13 @@ cmake -B build -S .
 # 2. Build proyek
 cmake --build build
 
-# 3. Jalankan Game utama
+# 3. Jalankan Game utama (CLI)
 .\build\bin\PokerGame.exe
 
-# 4. Jalankan Unit Test suite
+# 4. Jalankan Game utama (TUI - FTXUI)
+.\build\bin\PokerGameTUI.exe
+
+# 5. Jalankan Unit Test suite
 .\build\bin\TestRunner.exe
 ```
 
