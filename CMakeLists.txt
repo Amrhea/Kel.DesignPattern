@@ -28,6 +28,10 @@ add_executable(TestRunner
     tests/test_blind.cpp 
     tests/test_reward.cpp
     tests/test_run_integration.cpp
+    tests/test_persistent_state.cpp
+    tests/test_runtime_state.cpp
+    tests/test_score_context.cpp
+    tests/test_boundary_enforcement.cpp
     ${SOURCES}
 )
 

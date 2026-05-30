@@ -5,7 +5,15 @@
 #include "card/Deck.h"
 
 RuntimeSession::RuntimeSession() 
-    : ante(1), remainingPlays(4), gold(4), currentBlind(std::make_shared<SmallBlindState>()) {
+    : sessionState(),
+      ante(sessionState.persistentState.ante),
+      remainingPlays(sessionState.runtimeState.remainingHands),
+      gold(sessionState.persistentState.money),
+      currentBlind(sessionState.persistentState.currentBlind),
+      pendingCommands(sessionState.persistentState.pendingCommands),
+      jokers(sessionState.persistentState.jokers) {
+    
+    currentBlind = std::make_shared<SmallBlindState>();
     
     // Initialize standard deck
     Deck stdDeck = DeckFactory::CreateStandardDeck();
