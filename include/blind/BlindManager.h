@@ -64,9 +64,10 @@ private:
     RoundStatus status;
 
 public:
-    RoundState(const BlindData& data)
+    RoundState(const BlindData& data, int customHandsLimit = -1)
         : targetScore(data.targetScore), currentScore(0),
-          handsRemaining(data.handsLimit), discardsRemaining(data.discardsLimit),
+          handsRemaining(customHandsLimit > 0 ? customHandsLimit : data.handsLimit),
+          discardsRemaining(data.discardsLimit),
           status(RoundStatus::PLAYING) {}
 
     void AddScore(int score) {

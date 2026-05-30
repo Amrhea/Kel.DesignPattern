@@ -37,7 +37,7 @@ Untuk pengguna Visual Studio Code, tersedia integrasi task otomasi yang dapat di
 ## 3. Testing Automation (Catch2)
 Otomasi pengujian diimplementasikan menggunakan framework **Catch2**.
 
-- **File Pengujian:** `tests/test_checkers.cpp`
+- **File Pengujian:** Semua file pengujian di dalam folder `tests/` (misal: `test_checkers.cpp`, `test_scoring.cpp`, `test_blind_progression.cpp`, `test_reward_commands.cpp`, `test_blind_round.cpp`, `test_deck_hand.cpp`, dan `test_selection.cpp`)
 - **Cara Menjalankan:**
   - Melalui VS Code Task: `CMake: Run Tests`
   - Melalui Terminal: `./build/bin/TestRunner.exe`

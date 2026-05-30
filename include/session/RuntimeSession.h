@@ -5,20 +5,26 @@
 #include "scoring/HandScore.h"
 #include "joker/JokerCard.h"
 
+#include "card/Card.h"
+#include "state/RunSessionState.h"
+
 class BlindState;
 class RewardCommand;
 
 class RuntimeSession {
 public:
-    int ante;
-    int remainingPlays;
-    int gold;
+    RunSessionState sessionState;
+
+    int& ante;
+    int& remainingPlays;
+    int& gold;
     std::vector<std::string> deck;
-    std::shared_ptr<BlindState> currentBlind;
-    std::vector<std::shared_ptr<RewardCommand>> pendingCommands;
+    std::vector<Card> persistentDeck;
+    std::shared_ptr<BlindState>& currentBlind;
+    std::vector<std::shared_ptr<RewardCommand>>& pendingCommands;
     
     HandScoreTable handScores;
-    std::vector<std::shared_ptr<Observer>> jokers;
+    std::vector<std::shared_ptr<Observer>>& jokers;
 
     RuntimeSession();
     ~RuntimeSession();

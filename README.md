@@ -20,15 +20,16 @@ Proyek ini mensimulasikan sistem penilaian kartu mirip game *Balatro*. Sistem in
 
 ```
 D:\CODE\C++\Kel.DesignPattern\
-├── include/                      # Folder Header untuk 8 Subsystem
-│   ├── blind/                    # Interface & State Blind (State Pattern)
-│   ├── card/                     # Model Kartu
-│   ├── hand_selection/           # Hand & Generator
+├── include/                      # Folder Header untuk Subsystem
+│   ├── blind/                    # Interface, State, & Manager Blind
+│   ├── card/                     # Model Kartu & Dek
+│   ├── hand_selection/           # Hand & Generator Seleksi
 │   ├── joker/                    # Observer & Subject Joker
-│   ├── poker_evaluation/         # CoR Checkers & HandHandler
+│   ├── poker_evaluation/         # CoR Checkers & PokerHandEvaluator
 │   ├── reward/                   # Command Reward (Command Pattern)
 │   ├── run/                      # GameManager Facade & HandPlayer
-│   └── scoring/                  # Template Method & Scoring Rule
+│   ├── scoring/                  # Template Method & Scoring Rule
+│   └── session/                  # Sesi Runtime Game
 ├── src/                          # Folder Implementasi untuk 8 Subsystem
 │   ├── blind/
 │   ├── hand_selection/
@@ -40,10 +41,13 @@ D:\CODE\C++\Kel.DesignPattern\
 │   └── main.cpp                  # Entry point minimal (bootstrap GameManager)
 ├── docs/                         # Diagram & Analisis
 ├── tests/                        # Unit Tests (Catch2)
-│   ├── test_checkers.cpp
-│   ├── test_scoring.cpp
 │   ├── test_blind_progression.cpp
-│   └── test_reward_commands.cpp
+│   ├── test_blind_round.cpp
+│   ├── test_checkers.cpp
+│   ├── test_deck_hand.cpp
+│   ├── test_reward_commands.cpp
+│   ├── test_scoring.cpp
+│   └── test_selection.cpp
 ├── CMakeLists.txt
 ├── .gitignore
 └── README.md
@@ -55,10 +59,11 @@ D:\CODE\C++\Kel.DesignPattern\
 
 Objek chain dari handler - mendeteksi tipe kartu dari yang paling langka ke yang paling umum:
 ```
-1. Five of a Kind  → 2. Royal Flush     → 3. Straight Flush
-→ 4. Four of a Kind  → 5. Flush House     → 6. Full House
-→ 7. Flush           → 8. Straight        → 9. Three of a Kind
-→ 10. Two Pair       → 11. Pair           → 12. High Card (fallback)
+1. Flush Five      → 2. Five of a Kind  → 3. Royal Flush
+→ 4. Straight Flush → 5. Four of a Kind  → 6. Flush House
+→ 7. Full House     → 8. Flush           → 9. Straight
+→ 10. Three of a Kind → 11. Two Pair     → 12. Pair
+→ 13. High Card (fallback)
 ```
 
 ### 2. Observer Pattern (Joker Cards)
@@ -111,25 +116,26 @@ cmake --build build
 
 | No | Tipe | Deskripsi | Contoh |
 |----|------|-----------|--------|
-| 1 | Five of a Kind | 5 kartu dengan rank sama (dengan wildcard) | A♠ A♥ A♦ A♣ A♠ |
-| 2 | Royal Flush | 5 kartu berurutan, suit sama, dari 10-Ace | 10♠ J♠ Q♠ K♠ A♠ |
-| 3 | Straight Flush | 5 kartu berurutan, suit sama (bukan Royal) | 7♠ 8♠ 9♠ 10♠ J♠ |
-| 4 | Four of a Kind | 4 kartu dengan rank sama | K♠ K♥ K♦ K♣ 9♠ |
-| 5 | Flush House | Flush + Full House kombinasi | 5♥ 5♠ 5♦ 5♣ 5♣ |
-| 6 | Full House | 3 kartu sama + 2 kartu sama | 3♠ 3♥ 3♦ K♣ K♠ |
-| 7 | Flush | 5 kartu dengan suit sama | 2♠ 5♠ 7♠ 9♠ K♠ |
-| 8 | Straight | 5 kartu berurutan | 4♥ 5♦ 6♠ 7♣ 8♠ |
-| 9 | Three of a Kind | 3 kartu dengan rank sama | 8♠ 8♥ 8♦ 2♣ 5♠ |
-| 10 | Two Pair | 2 pasang kartu dengan rank sama | 9♠ 9♥ 3♦ 3♣ K♠ |
-| 11 | Pair | 1 pasang kartu dengan rank sama | 7♠ 7♥ 2♦ 5♣ 9♠ |
-| 12 | High Card | Tidak ada kombinasi khusus | 2♠ 5♦ 8♥ 10♣ K♠ |
+| 1 | Flush Five | 5 kartu dengan rank sama dan suit sama | A♠ A♠ A♠ A♠ A♠ (dengan duplicate/wildcard) |
+| 2 | Five of a Kind | 5 kartu dengan rank sama (dengan wildcard) | A♠ A♥ A♦ A♣ A♠ |
+| 3 | Royal Flush | 5 kartu berurutan, suit sama, dari 10-Ace | 10♠ J♠ Q♠ K♠ A♠ |
+| 4 | Straight Flush | 5 kartu berurutan, suit sama (bukan Royal) | 7♠ 8♠ 9♠ 10♠ J♠ |
+| 5 | Four of a Kind | 4 kartu dengan rank sama | K♠ K♥ K♦ K♣ 9♠ |
+| 6 | Flush House | Flush + Full House kombinasi | 5♥ 5♠ 5♦ 5♣ 5♣ |
+| 7 | Full House | 3 kartu sama + 2 kartu sama | 3♠ 3♥ 3♦ K♣ K♠ |
+| 8 | Flush | 5 kartu dengan suit sama | 2♠ 5♠ 7♠ 9♠ K♠ |
+| 9 | Straight | 5 kartu berurutan | 4♥ 5♦ 6♠ 7♣ 8♠ |
+| 10 | Three of a Kind | 3 kartu dengan rank sama | 8♠ 8♥ 8♦ 2♣ 5♠ |
+| 11 | Two Pair | 2 pasang kartu dengan rank sama | 9♠ 9♥ 3♦ 3♣ K♠ |
+| 12 | Pair | 1 pasang kartu dengan rank sama | 7♠ 7♥ 2♦ 5♣ 9♠ |
+| 13 | High Card | Tidak ada kombinasi khusus | 2♠ 5♦ 8♥ 10♣ K♠ |
 
 ## Extensibility
 
 Proyek ini dirancang agar mudah diperluas:
 1. **Menambah Joker Baru:** Buat subclass baru dari `Observer` / `JokerCard`.
 2. **Menambah Strategi Rule Baru:** Buat implementasi konkret baru dari `IScoringStrategy`, `IBlindStrategy`, atau `IRewardStrategy`.
-3. **Menambah Checker Tangan Baru:** Buat checker mewarisi `IPokerHandChecker`, daftarkan ke urutan chain di `HandHandler`.
+3. **Menambah Checker Tangan Baru:** Buat checker mewarisi `IPokerHandChecker`, daftarkan ke urutan chain di `PokerHandEvaluator`.
 
 ## Dependencies
 

@@ -20,15 +20,18 @@ add_executable(PokerGame src/main.cpp ${SOURCES})
 
 # Tambahkan target Testing
 add_executable(TestRunner 
-    tests/test_checkers.cpp 
+    tests/test_card.cpp 
+    tests/test_hand_selection.cpp 
+    tests/test_poker_evaluation.cpp 
     tests/test_scoring.cpp 
-    tests/test_blind_progression.cpp 
-    tests/test_reward_commands.cpp 
-    tests/test_blind_round.cpp
-    tests/test_deck_hand.cpp
-    tests/test_selection.cpp
-    tests/test_rewards_subsystem.cpp
-    tests/test_joker_system.cpp
+    tests/test_joker.cpp 
+    tests/test_blind.cpp 
+    tests/test_reward.cpp
+    tests/test_run_integration.cpp
+    tests/test_persistent_state.cpp
+    tests/test_runtime_state.cpp
+    tests/test_score_context.cpp
+    tests/test_boundary_enforcement.cpp
     ${SOURCES}
 )
 
