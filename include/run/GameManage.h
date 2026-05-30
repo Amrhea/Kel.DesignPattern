@@ -8,7 +8,7 @@
 #include "reward/RewardRule.h"
 #include <memory>
 
-class GameManager : public Subject
+class GameManager
 {
     private:
         static GameManager* instance;

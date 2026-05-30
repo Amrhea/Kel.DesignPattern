@@ -27,6 +27,6 @@ public:
     // Method untuk membersihkan hand
     void Clear();
 
-    // Method untuk menampilkan kartu (untuk debugging)
-    void ShowCards() const;
+    // Method untuk mendapatkan semua kartu
+    const std::vector<Card>& GetCards() const { return cards; }
 };
