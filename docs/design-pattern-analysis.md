@@ -162,10 +162,10 @@ classDiagram
 
     class GameManager {
         -static GameManager* instance
-        -HandGenerator* handGenerator
-        -unique_ptr~ScoringRule~ scoringRule
-        -unique_ptr~BlindRule~ blindRule
-        -unique_ptr~RewardRule~ rewardRule
+        -RunState state
+        -unique_ptr~RuntimeSession~ session
+        -unique_ptr~AnteManager~ anteManager
+        -unique_ptr~RoundManager~ roundManager
         +GetInstance() GameManager*
         +RunSession()
     }
@@ -217,11 +217,15 @@ classDiagram
     class FreePlayingCardCommand
 
     class RuntimeSession {
-        +int ante
-        +int remainingPlays
+        +RunSessionState sessionState
+        +int& ante
+        +int& remainingPlays
+        +int& gold
         +vector~string~ deck
-        +shared_ptr~BlindState~ currentBlind
-        +vector~shared_ptr~RewardCommand~~ pendingCommands
+        +vector~Card~ persistentDeck
+        +shared_ptr~BlindState~& currentBlind
+        +vector~shared_ptr~RewardCommand~~& pendingCommands
+        +vector~shared_ptr~Observer~~& jokers
         +executePendingCommands(string) vector~string~
         +skipBlind() vector~string~
         +playBlind() vector~string~
