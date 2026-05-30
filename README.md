@@ -106,8 +106,11 @@ Skip reward diimplementasikan menggunakan Command Pattern dengan deferred queue.
 Proyek ini dibangun menggunakan **CMake**.
 
 ```bash
-# 1. Konfigurasi build
+# 1. Konfigurasi build (CLI default)
 cmake -B build -S .
+
+# (Opsional) Konfigurasi dengan TUI diaktifkan
+cmake -B build -S . -DBUILD_TUI=ON
 
 # 2. Build proyek
 cmake --build build
@@ -115,7 +118,7 @@ cmake --build build
 # 3. Jalankan Game utama (CLI)
 .\build\bin\PokerGame.exe
 
-# 4. Jalankan Game utama (TUI - FTXUI)
+# 4. Jalankan Game utama (TUI - FTXUI, jika BUILD_TUI=ON)
 .\build\bin\PokerGameTUI.exe
 
 # 5. Jalankan Unit Test suite

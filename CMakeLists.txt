@@ -16,23 +16,29 @@ file(GLOB_RECURSE SOURCES "src/*.cpp")
 list(FILTER SOURCES EXCLUDE REGEX "src/main.cpp")
 list(FILTER SOURCES EXCLUDE REGEX "src/main_tui.cpp")
 
-# Fetch FTXUI
-include(FetchContent)
-FetchContent_Declare(
-  ftxui
-  GIT_REPOSITORY https://github.com/ArthurSonzogni/FTXUI
-  GIT_TAG v5.0.0
-)
-set(FTXUI_BUILD_TESTS OFF CACHE INTERNAL "")
-set(FTXUI_BUILD_EXAMPLES OFF CACHE INTERNAL "")
-FetchContent_MakeAvailable(ftxui)
+# Option untuk build TUI secara opsional
+option(BUILD_TUI "Build TUI version with FTXUI" OFF)
 
 # Tentukan nama executable dan file sumbernya
 add_executable(PokerGame src/main.cpp ${SOURCES})
 
-# Target TUI
-add_executable(PokerGameTUI src/main_tui.cpp ${SOURCES})
-target_link_libraries(PokerGameTUI PRIVATE ftxui::screen ftxui::dom ftxui::component)
+# Target TUI (Opsional)
+if(BUILD_TUI)
+    # Fetch FTXUI
+    include(FetchContent)
+    FetchContent_Declare(
+      ftxui
+      GIT_REPOSITORY https://github.com/ArthurSonzogni/FTXUI
+      GIT_TAG v5.0.0
+    )
+    set(FTXUI_BUILD_TESTS OFF CACHE INTERNAL "")
+    set(FTXUI_BUILD_EXAMPLES OFF CACHE INTERNAL "")
+    FetchContent_MakeAvailable(ftxui)
+
+    add_executable(PokerGameTUI src/main_tui.cpp ${SOURCES})
+    target_link_libraries(PokerGameTUI PRIVATE ftxui::screen ftxui::dom ftxui::component)
+    set_target_properties(PokerGameTUI PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+endif()
 
 # Tambahkan target Testing
 add_executable(TestRunner 
@@ -52,5 +58,6 @@ add_executable(TestRunner
 )
 
 # Mengatur output direktori agar rapi
-set_target_properties(PokerGame PokerGameTUI TestRunner PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+set_target_properties(PokerGame TestRunner PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+
 
