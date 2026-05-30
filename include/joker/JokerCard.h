@@ -9,6 +9,6 @@ private:
 
 public:
     JokerCard(const std::string& name, int bonusPoints);
-    void OnHandPlayed(const std::string& handName, int& score) override;
-    std::string GetName() const;
+    void apply(ScoreContext& context) override;
+    std::string getName() const;
 };

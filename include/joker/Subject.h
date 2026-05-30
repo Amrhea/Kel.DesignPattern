@@ -1,5 +1,6 @@
 #pragma once
 #include "joker/Observer.h"
+#include "scoring/ScoreContext.h"
 #include <vector>
 #include <algorithm>
 
@@ -18,10 +19,14 @@ public:
         observers.erase(std::remove(observers.begin(), observers.end(), observer), observers.end());
     }
 
-    virtual void NotifyObservers(const std::string& handName, int& score) {
+    virtual void ClearObservers() {
+        observers.clear();
+    }
+
+    virtual void NotifyObservers(ScoreContext& context) {
         for (auto* observer : observers) {
             if (observer) {
-                observer->OnHandPlayed(handName, score);
+                observer->apply(context);
             }
         }
     }

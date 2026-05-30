@@ -6,6 +6,11 @@
 #include "session/RuntimeSession.h"
 #include "blind/BlindState.h"
 #include "joker/JokerCard.h"
+#include "joker/JokerManager.h"
+#include "joker/ConcreteJokers.h"
+#include "reward/RewardManager.h"
+#include "reward/ShopSystem.h"
+#include "scoring/ScoreContext.h"
 #include <iostream>
 
 GameManager* GameManager::instance = nullptr;
@@ -36,13 +41,19 @@ void GameManager::RunSession() {
     RuntimeSession session;
     PokerHandEvaluator handEvaluator;
 
-    // Setup player, gold, jokers (as observers)
-    HandPlayer player;
-    player.AddJoker(std::make_shared<JokerCard>("Ice Joker", 15));
-    player.AddJoker(std::make_shared<JokerCard>("Fire Joker", 30));
-    for (auto& joker : player.GetJokers()) {
-        RegisterObserver(joker.get());
+    // Setup Jokers in session and register to JokerManager
+    JokerManager& jokerManager = JokerManager::GetInstance();
+    jokerManager.ClearObservers();
+    
+    session.addJoker(std::make_shared<ChipsBoostJoker>(20));
+    session.addJoker(std::make_shared<MultiplierJoker>(2));
+    session.addJoker(std::make_shared<ConditionalJoker>(PokerHandType::Flush, 15));
+
+    for (auto& joker : session.jokers) {
+        jokerManager.RegisterObserver(joker.get());
     }
+
+    ShopSystem shop;
 
     // Run session loop (e.g. for Ante 1)
     while (session.ante == 1) {
@@ -75,28 +86,54 @@ void GameManager::RunSession() {
             std::cout << "[System] Current Hand:" << std::endl;
             PokerHandUtils::ShowCards(hand);
 
-            std::cout << "[System] Evaluating hand via Template Method pattern..." << std::endl;
-            BonusScoreCalculator calculator;
-            int finalScore = calculator.CalculateScore(hand, handEvaluator);
+            HandEvaluation eval = handEvaluator.Evaluate(hand);
 
-            HandEvaluation result = handEvaluator.Evaluate(hand);
+            if (eval.isValid()) {
+                // Get base score from ScoringRule (PlayedHandResult)
+                PlayedHandResult baseResult = scoringRule->calculateScore(eval.handType, session.handScores);
 
-            if (result.isValid()) {
-                std::cout << ">> Checked Hand: " << result.handName << std::endl;
-                std::cout << ">> Score before Jokers: " << finalScore << std::endl;
+                // Create ScoreContext (Mutable)
+                ScoreContext context(eval.handType, eval.handName, baseResult.chips, baseResult.mult, hand.GetCards());
 
-                // Notify observers to modify score
-                NotifyObservers(result.handName, finalScore);
-                std::cout << ">> Score after Jokers: " << finalScore << std::endl;
+                std::cout << ">> Checked Hand: " << context.handName << " (Level " << baseResult.level << ")" << std::endl;
+                std::cout << ">> Base Score: " << context.chips << " x " << context.mult << " = " << context.calculateFinalScore() << std::endl;
+
+                // Notify JokerManager to apply Joker effects
+                jokerManager.NotifyObservers(context);
+                
+                int finalScore = context.calculateFinalScore();
+                std::cout << ">> Final Score after Jokers: " << context.chips << " x " << context.mult << " = " << finalScore << std::endl;
                 
                 bool isWin = finalScore >= target;
                 std::cout << "[System] Win Condition Met? " << (isWin ? "YES" : "NO") << std::endl;
 
                 // Strategy usage: Reward calculation
                 int rewardMoney = session.currentBlind->getRewardMoney();
-                player.AddGold(rewardMoney);
+                session.addGold(rewardMoney);
                 std::cout << "[System] Rewards Earned: $" << rewardMoney << std::endl;
-                std::cout << "[System] Player Current Gold: $" << player.GetGold() << std::endl;
+                std::cout << "[System] Player Current Gold: $" << session.gold << std::endl;
+
+                // Open Shop after winning
+                std::cout << "--- Entering Shop ---" << std::endl;
+                shop.GenerateInventory();
+                const auto& inventory = shop.GetInventory();
+                for (size_t i = 0; i < inventory.size(); ++i) {
+                    std::cout << i << ": " << inventory[i].description << " ($" << inventory[i].price << ")" << std::endl;
+                }
+                std::cout << "Enter item index to buy (or -1 to leave): ";
+                int shopChoice;
+                if (std::cin >> shopChoice && shopChoice >= 0) {
+                    if (shop.BuyItem(shopChoice, session)) {
+                        std::cout << "[System] Item purchased!" << std::endl;
+                        // Register new joker as observer if it was a joker reward
+                        jokerManager.ClearObservers();
+                        for (auto& joker : session.jokers) {
+                            jokerManager.RegisterObserver(joker.get());
+                        }
+                    } else {
+                        std::cout << "[System] Not enough gold or invalid item." << std::endl;
+                    }
+                }
             } else {
                 std::cout << ">> Result: No valid hand detected." << std::endl;
             }
@@ -118,7 +155,7 @@ void GameManager::RunSession() {
     std::cout << "Current Blind: " << session.currentBlind->getName() << std::endl;
     std::cout << "Target Score: " << session.currentBlind->getTargetScore(session.ante) << std::endl;
 
-    // Clean up observers
-    observers.clear();
+    // Clean up or reset session if needed
+    jokerManager.ClearObservers();
     std::cout << "--- Session Complete ---" << std::endl;
 }

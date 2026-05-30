@@ -4,9 +4,40 @@
 #include "reward/RewardCommand.h"
 
 RuntimeSession::RuntimeSession() 
-    : ante(1), remainingPlays(4), currentBlind(std::make_shared<SmallBlindState>()) {}
+    : ante(1), remainingPlays(4), gold(4), currentBlind(std::make_shared<SmallBlindState>()) {
+    
+    // Default Hand Scores
+    handScores[PokerHandType::HighCard] = HandScoreData(5, 1);
+    handScores[PokerHandType::Pair] = HandScoreData(10, 2);
+    handScores[PokerHandType::TwoPair] = HandScoreData(20, 2);
+    handScores[PokerHandType::ThreeOfKind] = HandScoreData(30, 3);
+    handScores[PokerHandType::Straight] = HandScoreData(30, 4);
+    handScores[PokerHandType::Flush] = HandScoreData(35, 4);
+    handScores[PokerHandType::FullHouse] = HandScoreData(40, 4);
+    handScores[PokerHandType::FourOfKind] = HandScoreData(60, 7);
+    handScores[PokerHandType::StraightFlush] = HandScoreData(100, 8);
+}
 
 RuntimeSession::~RuntimeSession() {}
+
+void RuntimeSession::addGold(int amount) {
+    gold += amount;
+}
+
+void RuntimeSession::addJoker(std::shared_ptr<Observer> joker) {
+    if (joker) {
+        jokers.push_back(joker);
+    }
+}
+
+void RuntimeSession::upgradeHand(PokerHandType handType, int chipsBonus, int multBonus) {
+    auto it = handScores.find(handType);
+    if (it != handScores.end()) {
+        it->second.level++;
+        it->second.baseChips += chipsBonus;
+        it->second.baseMult += multBonus;
+    }
+}
 
 std::vector<std::string> RuntimeSession::executePendingCommands(const std::string& timing) {
     std::vector<std::string> logs;
