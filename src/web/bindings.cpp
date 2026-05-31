@@ -18,6 +18,21 @@
 #include <algorithm>
 
 class WasmGame {
+private:
+    PokerHandType parseHandType(const std::string& name) const {
+        if (name == "High Card") return PokerHandType::HighCard;
+        if (name == "Pair") return PokerHandType::Pair;
+        if (name == "Two Pair") return PokerHandType::TwoPair;
+        if (name == "Three of a Kind") return PokerHandType::ThreeOfKind;
+        if (name == "Straight") return PokerHandType::Straight;
+        if (name == "Flush") return PokerHandType::Flush;
+        if (name == "Full House") return PokerHandType::FullHouse;
+        if (name == "Four of a Kind") return PokerHandType::FourOfKind;
+        if (name == "Straight Flush") return PokerHandType::StraightFlush;
+        if (name == "Royal Flush") return PokerHandType::RoyalFlush;
+        return PokerHandType::HighCard;
+    }
+
 public:
     std::shared_ptr<RuntimeSession> session;
     std::shared_ptr<AnteManager> anteManager;
@@ -63,7 +78,14 @@ public:
         
         inRound = false;
         logs.clear();
-        logs.push_back("New run started! Ante 1.");
+        addLog("New run started! Ante 1.");
+    }
+
+    void addLog(const std::string& msg) {
+        logs.push_back(msg);
+        if (logs.size() > 50) {
+            logs.erase(logs.begin());
+        }
     }
 
     // Getters for general session state
@@ -81,12 +103,33 @@ public:
     int getBlindTargetScore() const { return anteManager->GetTargetScore(); }
     int getBlindRewardMoney() const { return anteManager->GetRewardMoney(); }
 
+    // Hand score live state
+    int getHandLevel(std::string name) const {
+        auto it = session->handScores.find(parseHandType(name));
+        if (it != session->handScores.end()) return it->second.level;
+        return 1;
+    }
+
+    int getHandBaseChips(std::string name) const {
+        auto it = session->handScores.find(parseHandType(name));
+        if (it != session->handScores.end()) return it->second.baseChips;
+        return 0;
+    }
+
+    int getHandBaseMult(std::string name) const {
+        auto it = session->handScores.find(parseHandType(name));
+        if (it != session->handScores.end()) return it->second.baseMult;
+        return 0;
+    }
+
     // Actions
     void skipBlind() {
         if (inRound) return;
-        logs.push_back("Skipping blind: " + getBlindName());
+        addLog("Skipping blind: " + getBlindName());
         auto skipLogs = anteManager->Skip();
-        logs.insert(logs.end(), skipLogs.begin(), skipLogs.end());
+        for (const auto& l : skipLogs) {
+            addLog(l);
+        }
     }
 
     void startRound() {
@@ -107,7 +150,7 @@ public:
         // Draw initial 8 cards
         currentHand.clear();
         refillHand();
-        logs.push_back("Round started! Target score: " + std::to_string(roundTargetScore));
+        addLog("Round started! Target score: " + std::to_string(roundTargetScore));
     }
 
     void refillHand() {
@@ -169,7 +212,7 @@ public:
         refillHand();
         
         std::string resLog = "Played: " + context.handName + " (Level " + std::to_string(baseResult.level) + "). Scored: " + std::to_string(finalScore);
-        logs.push_back(resLog);
+        addLog(resLog);
         
         // Check win/lose
         if (roundScore >= roundTargetScore) {
@@ -177,14 +220,16 @@ public:
             // Won! Reward money
             int reward = getBlindRewardMoney();
             session->addGold(reward);
-            logs.push_back("Round won! Gained $" + std::to_string(reward));
+            addLog("Round won! Gained $" + std::to_string(reward));
             // Advance to next blind
             auto advanceLogs = anteManager->Skip();
-            logs.insert(logs.end(), advanceLogs.begin(), advanceLogs.end());
+            for (const auto& l : advanceLogs) {
+                addLog(l);
+            }
             shop.GenerateInventory(); // Generate shop items
         } else if (roundHandsRemaining <= 0) {
             inRound = false;
-            logs.push_back("Game Over! Failed to reach target score.");
+            addLog("Game Over! Failed to reach target score.");
         }
         
         return resLog;
@@ -193,7 +238,7 @@ public:
     void discardCards(std::vector<int> indices) {
         if (!inRound) return;
         if (roundDiscardsRemaining <= 0) {
-            logs.push_back("No discards remaining!");
+            addLog("No discards remaining!");
             return;
         }
         if (indices.empty()) return;
@@ -208,7 +253,7 @@ public:
         }
         currentHand = newHand;
         refillHand();
-        logs.push_back("Discarded " + std::to_string(indices.size()) + " cards.");
+        addLog("Discarded " + std::to_string(indices.size()) + " cards.");
     }
 
     // Shop operations
@@ -239,9 +284,9 @@ public:
     bool buyShopItem(int idx) {
         bool success = shop.BuyItem(idx, *session);
         if (success) {
-            logs.push_back("Bought shop item!");
+            addLog("Bought shop item!");
         } else {
-            logs.push_back("Failed to buy shop item.");
+            addLog("Failed to buy shop item.");
         }
         return success;
     }
@@ -279,6 +324,9 @@ EMSCRIPTEN_BINDINGS(wasm_game) {
         .method("getBlindName", &WasmGame::getBlindName)
         .method("getBlindTargetScore", &WasmGame::getBlindTargetScore)
         .method("getBlindRewardMoney", &WasmGame::getBlindRewardMoney)
+        .method("getHandLevel", &WasmGame::getHandLevel)
+        .method("getHandBaseChips", &WasmGame::getHandBaseChips)
+        .method("getHandBaseMult", &WasmGame::getHandBaseMult)
         .method("skipBlind", &WasmGame::skipBlind)
         .method("startRound", &WasmGame::startRound)
         .method("getHand", &WasmGame::getHand)

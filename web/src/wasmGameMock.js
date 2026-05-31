@@ -60,7 +60,15 @@ export class WasmGameMock {
             { name: "ConditionalJoker", target: "Flush", bonus: 15 }
         ];
 
-        this.logs = ["New run started! Ante 1."];
+        this.logs = [];
+        this.addLog("New run started! Ante 1.");
+    }
+
+    addLog(msg) {
+        this.logs.push(msg);
+        if (this.logs.length > 50) {
+            this.logs.shift();
+        }
     }
 
     getAnte() { return this.ante; }
@@ -93,11 +101,23 @@ export class WasmGameMock {
         return pIdx === 0 ? 3 : (pIdx === 1 ? 4 : 5);
     }
 
+    getHandLevel(name) {
+        return this.handScores[name] ? this.handScores[name].level : 1;
+    }
+
+    getHandBaseChips(name) {
+        return this.handScores[name] ? this.handScores[name].baseChips : 0;
+    }
+
+    getHandBaseMult(name) {
+        return this.handScores[name] ? this.handScores[name].baseMult : 0;
+    }
+
     skipBlind() {
         if (this.inRound) return;
         const reward = "Double Tag";
-        this.logs.push(`Skipping blind: ${this.getBlindName()}`);
-        this.logs.push(`[Reward queued: Skip reward - ${reward}]`);
+        this.addLog(`Skipping blind: ${this.getBlindName()}`);
+        this.addLog(`[Reward queued: Skip reward - ${reward}]`);
         
         // Advance blind
         this.advanceBlindState();
@@ -106,7 +126,7 @@ export class WasmGameMock {
 
     advanceBlindState() {
         this.ante++;
-        this.logs.push(`Advancing to Ante ${this.ante}...`);
+        this.addLog(`Advancing to Ante ${this.ante}...`);
     }
 
     startRound() {
@@ -124,7 +144,7 @@ export class WasmGameMock {
         // Draw initial 8 cards
         this.currentHand = [];
         this.refillHand();
-        this.logs.push(`Round started! Target score: ${this.roundTargetScore}`);
+        this.addLog(`Round started! Target score: ${this.roundTargetScore}`);
     }
 
     shuffle(array) {
@@ -185,18 +205,18 @@ export class WasmGameMock {
         this.refillHand();
 
         const resLog = `Played: ${handType} (Level ${scoreData.level}). Scored: ${chips} x ${mult} = ${scoreGained}`;
-        this.logs.push(resLog);
+        this.addLog(resLog);
 
         if (this.roundScore >= this.roundTargetScore) {
             this.inRound = false;
             const reward = this.getBlindRewardMoney();
             this.gold += reward;
-            this.logs.push(`Round won! Gained $${reward}`);
+            this.addLog(`Round won! Gained $${reward}`);
             this.advanceBlindState();
             this.generateShop();
         } else if (this.roundHandsRemaining <= 0) {
             this.inRound = false;
-            this.logs.push(`Game Over! Failed to reach target score.`);
+            this.addLog(`Game Over! Failed to reach target score.`);
         }
 
         return resLog;
@@ -205,7 +225,7 @@ export class WasmGameMock {
     discardCards(indices) {
         if (!this.inRound) return;
         if (this.roundDiscardsRemaining <= 0) {
-            this.logs.push("No discards remaining!");
+            this.addLog("No discards remaining!");
             return;
         }
         if (!indices || indices.length === 0) return;
@@ -213,7 +233,7 @@ export class WasmGameMock {
         this.roundDiscardsRemaining--;
         this.currentHand = this.currentHand.filter((_, i) => !indices.includes(i));
         this.refillHand();
-        this.logs.push(`Discarded ${indices.length} cards.`);
+        this.addLog(`Discarded ${indices.length} cards.`);
     }
 
     // Very simple poker hand evaluator for the client UI
@@ -329,7 +349,7 @@ export class WasmGameMock {
                     bonus: item.multBonus
                 });
             }
-            this.logs.push(`Bought: ${item.name}`);
+            this.addLog(`Bought: ${item.name}`);
             this.shopInventory.splice(idx, 1);
             return true;
         }

@@ -134,18 +134,13 @@ export default function App() {
       "Flush", "Full House", "Four of a Kind", "Straight Flush", "Royal Flush"
     ];
 
-    if (game.session && game.session.handScores) {
-      // C++ mapping
-      // We'll read it directly if possible, else use default display
-      possibleHands.forEach(handName => {
-        handScores[handName] = { level: 1, baseChips: 10, baseMult: 2 }; // Fallback
-      });
-    } else if (game.handScores) {
-      // JS mockup mapping
-      possibleHands.forEach(handName => {
-        handScores[handName] = game.handScores[handName];
-      });
-    }
+    possibleHands.forEach(handName => {
+      handScores[handName] = {
+        level: game.getHandLevel(handName),
+        baseChips: game.getHandBaseChips(handName),
+        baseMult: game.getHandBaseMult(handName)
+      };
+    });
 
     setGameState(prev => ({
       ...prev,
