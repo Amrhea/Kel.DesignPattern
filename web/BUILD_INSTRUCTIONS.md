@@ -4,7 +4,7 @@ Panduan kompilasi C++ ke WebAssembly (Wasm) dan build frontend aplikasi React + 
 
 ## 🔗 Tautan Live Game (GitHub Pages)
 Akses game hasil deploy Anda di:  
-**`https://<username-github>.github.io/Kel.DesignPattern/`**
+**`https://Amrhea.github.io/Kel.DesignPattern/`**
 
 ---
 

@@ -4,7 +4,7 @@ Sebuah aplikasi C++ untuk mendeteksi tipe poker hand dan mengkalkulasi skor deng
 
 ## 🚀 Balatro Web Assembly (Wasm) Port
 Akses dan mainkan game secara interaktif di browser Anda:  
-**`https://<username-github>.github.io/Kel.DesignPattern/`**
+**`https://Amrhea.github.io/Kel.DesignPattern/`**
 
 ## Dokumentasi Analisis
 

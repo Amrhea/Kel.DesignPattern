@@ -4,7 +4,7 @@ A premium interactive web interface for playing the Balatro C++ game directly in
 
 ## 🚀 Live Deployment
 Tautan deploy game Anda di GitHub Pages:
-**`https://<username-github>.github.io/Kel.DesignPattern/`**
+**`https://Amrhea.github.io/Kel.DesignPattern/`**
 
 ## Getting Started
 
