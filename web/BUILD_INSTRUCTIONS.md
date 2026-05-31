@@ -69,3 +69,20 @@ cd web
 npm run build
 ```
 Hasil build akhir akan berada di folder `web/dist/`, berisi HTML, CSS, JS, dan file `.wasm` yang siap di-deploy ke GitHub Pages atau hosting statis lainnya.
+
+---
+
+### Opsi D: Deploy Manual ke GitHub Pages (Local Deploy)
+Jika Anda tidak memiliki akses admin (Settings) untuk menyetel izin GitHub Actions di repositori utama, Anda dapat melakukan deploy secara manual ke branch `gh-pages` langsung dari komputer Anda:
+
+```bash
+# 1. Pastikan Anda berada di direktori web
+cd web
+
+# 2. Jalankan perintah deploy
+npm run deploy
+```
+
+Perintah ini akan otomatis:
+- Membangun bundel produksi (`npm run build`).
+- Mengunggah isi folder `dist/` ke branch `gh-pages` di repositori GitHub Anda.
