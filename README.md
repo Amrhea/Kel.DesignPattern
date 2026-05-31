@@ -2,6 +2,10 @@
 
 Sebuah aplikasi C++ untuk mendeteksi tipe poker hand dan mengkalkulasi skor dengan menggunakan berbagai **Design Patterns** (Chain of Responsibility, Observer, Strategy, Template Method, dan Singleton).
 
+## 🚀 Balatro Web Assembly (Wasm) Port
+Akses dan mainkan game secara interaktif di browser Anda:  
+**`https://<username-github>.github.io/Kel.DesignPattern/`**
+
 ## Dokumentasi Analisis
 
 Berikut adalah tautan dokumen analisis arsitektur proyek:

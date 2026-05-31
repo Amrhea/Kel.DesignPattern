@@ -2,6 +2,10 @@
 
 Panduan kompilasi C++ ke WebAssembly (Wasm) dan build frontend aplikasi React + Vite.
 
+## 🔗 Tautan Live Game (GitHub Pages)
+Akses game hasil deploy Anda di:  
+**`https://<username-github>.github.io/Kel.DesignPattern/`**
+
 ---
 
 ## 📋 Prasyarat (Prerequisites)

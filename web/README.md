@@ -2,6 +2,10 @@
 
 A premium interactive web interface for playing the Balatro C++ game directly in the browser using WebAssembly.
 
+## 🚀 Live Deployment
+Tautan deploy game Anda di GitHub Pages:
+**`https://<username-github>.github.io/Kel.DesignPattern/`**
+
 ## Getting Started
 
 ### 1. Run the Web Application
