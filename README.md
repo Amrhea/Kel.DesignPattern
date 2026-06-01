@@ -2,6 +2,10 @@
 
 Sebuah aplikasi C++ untuk mendeteksi tipe poker hand dan mengkalkulasi skor dengan menggunakan berbagai **Design Patterns** (Chain of Responsibility, Observer, Strategy, Template Method, dan Singleton).
 
+## 🚀 Balatro Web Assembly (Wasm) Port
+Akses dan mainkan game secara interaktif di browser Anda:  
+**`https://Amrhea.github.io/Kel.DesignPattern/`**
+
 ## Dokumentasi Analisis
 
 Berikut adalah tautan dokumen analisis arsitektur proyek:
@@ -106,16 +110,22 @@ Skip reward diimplementasikan menggunakan Command Pattern dengan deferred queue.
 Proyek ini dibangun menggunakan **CMake**.
 
 ```bash
-# 1. Konfigurasi build
+# 1. Konfigurasi build (CLI default)
 cmake -B build -S .
+
+# (Opsional) Konfigurasi dengan TUI diaktifkan
+cmake -B build -S . -DBUILD_TUI=ON
 
 # 2. Build proyek
 cmake --build build
 
-# 3. Jalankan Game utama
+# 3. Jalankan Game utama (CLI)
 .\build\bin\PokerGame.exe
 
-# 4. Jalankan Unit Test suite
+# 4. Jalankan Game utama (TUI - FTXUI, jika BUILD_TUI=ON)
+.\build\bin\PokerGameTUI.exe
+
+# 5. Jalankan Unit Test suite
 .\build\bin\TestRunner.exe
 ```
 
