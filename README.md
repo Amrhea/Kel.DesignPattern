@@ -10,6 +10,7 @@ Akses dan mainkan game secara interaktif di browser Anda:
 
 Berikut adalah tautan dokumen analisis arsitektur proyek:
 
+- **[Technical Design Document (TDD)](docs/technical-design-document.md)**: Dokumen desain teknis komprehensif sistem (pola desain, state, Wasm, testing).
 - **[Analisis Design Pattern](docs/design-pattern-analysis.md)**: Penjelasan lengkap setiap pola desain beserta class diagram (Mermaid).
 - **[Pemisahan State Runtime](docs/runtime-state-separation.md)**: Arsitektur pemisahan state berdasarkan lifetime data (Persistent, Runtime, Temporary).
 - **[Sequence Diagram](docs/sequence-diagram.md)**: Alur runtime eksekusi program.
