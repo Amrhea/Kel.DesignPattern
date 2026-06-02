@@ -101,11 +101,100 @@ Untuk menjamin pemisahan state berjalan dengan benar, batasan-batasan berikut di
 
 ---
 
+## Alur Masa Hidup & Perubahan Data (Data Lifecycle & State Mutation Flow)
+
+Bagian ini memetakan bagaimana data diciptakan, dimutasi, dan dihancurkan seiring dengan progresi permainan.
+
+### 1. Inisialisasi Awal (Run Start)
+* **Aksi**: Pemain memulai permainan (Run baru).
+* **Mutasi Data**: `RunPersistentState` diciptakan. Nilai awal didefinisikan (`ante` = 1, `money` = 4, `jokers` kosong, `pendingCommands` kosong, `currentBlind` diset ke `SmallBlindState`).
+* **Karakteristik**: State ini terus hidup dan melacak status progres global pemain sepanjang keseluruhan permainan.
+
+### 2. Memulai Level Blind (Enter Blind)
+* **Aksi**: Pemain masuk ke dalam level blind aktif (misalnya Small Blind).
+* **Mutasi Data**: `BlindRuntimeState` diinisialisasi. Variabel lokal diatur ulang (`blindScore` = 0, `remainingHands` = 4, `remainingDiscards` = 4).
+* **Karakteristik**: State ini dibuat secara dinamis dan hanya bertahan selama level blind tersebut berjalan.
+
+### 3. Aksi Selama Pertempuran (Gameplay Actions)
+* **Aksi A: Play Hand (Memainkan Kartu)**
+  1. `ScoreContext` diciptakan sebagai **Temporary State** pada stack.
+  2. Jenis tangan dideteksi (misal: "Flush"), kemudian base `chips` dan `mult` diinisialisasi ke dalam `ScoreContext`.
+  3. `JokerManager` memicu seluruh Joker aktif yang terdaftar di `RunPersistentState` untuk mengaplikasikan modifikasi skor ke `ScoreContext` (`chips` & `mult` bertambah).
+  4. Skor akhir dihitung: `finalScore = chips * mult`.
+  5. Nilai `finalScore` ditambahkan ke `BlindRuntimeState.blindScore`.
+  6. Kesempatan memainkan kartu berkurang (`remainingHands` dikurangi 1).
+  7. Objek `ScoreContext` **dihancurkan** dari stack (masa hidupnya berakhir).
+* **Aksi B: Discard (Membuang Kartu)**
+  1. Kesempatan membuang kartu berkurang (`remainingDiscards` dikurangi 1).
+  2. Tidak ada pembuatan `ScoreContext` karena tidak ada kalkulasi skor.
+
+### 4. Alternatif: Melewati Level (Skip Blind)
+* **Aksi**: Pemain memilih untuk melewati Blind saat ini demi mendapatkan Skip Reward.
+* **Mutasi Data**:
+  1. `currentBlind->createSkipRewardCommand()` dipicu untuk membuat objek reward (misal `BonusHandCommand`).
+  2. Objek tersebut dimasukkan ke dalam antrean `pendingCommands` di `RunPersistentState`.
+  3. `currentBlind` berganti ke state berikutnya secara otomatis.
+  4. `BlindRuntimeState` **tidak pernah diciptakan** untuk level blind ini.
+
+### 5. Akhir Level Blind (Resolve Blind)
+* **Aksi**: Menentukan kemenangan atau kekalahan di akhir level blind.
+* **Kondisi Menang** (`blindScore >= targetScore`):
+  1. Hadiah uang (gold) dihitung berdasarkan `currentBlind->getRewardMoney()`.
+  2. Hadiah ditambahkan ke `RunPersistentState.money`.
+  3. `RunPersistentState.currentBlind` beralih ke state berikutnya lewat pemanggilan `currentBlind->nextState(ante)`.
+  4. Jika state berikutnya beralih melompati Boss Blind, `ante` global bertambah 1.
+  5. Perintah tertunda dalam `pendingCommands` yang memiliki timing cocok (`NextBlind` atau `NextAnte`) dieksekusi, lalu dibersihkan dari antrean.
+  6. `BlindRuntimeState` saat ini **dihancurkan**.
+* **Kondisi Kalah** (`remainingHands == 0` dan `blindScore < targetScore`):
+  1. Permainan dinyatakan berakhir (Game Over).
+  2. Seluruh state (`RunPersistentState` & `BlindRuntimeState`) dihancurkan.
+
+---
+
+### Diagram Alur Lifetime & Perubahan Data
+
+```mermaid
+flowchart TD
+    Start([Mulai Run]) --> InitPersistent[Inisialisasi RunPersistentState<br/>Ante=1, Money=4, Jokers=empty, currentBlind=SmallBlind]
+    InitPersistent --> ChooseBlind{Pilihan Player}
+    
+    ChooseBlind -- Play Blind --> InitRuntime[Inisialisasi BlindRuntimeState<br/>blindScore=0, remainingHands=4, remainingDiscards=4]
+    
+    InitRuntime --> PlayLoop{Kondisi Gameplay}
+    
+    PlayLoop -- Play Hand --> CreateTemp[Inisialisasi ScoreContext<br/>TEMPORARY STATE]
+    CreateTemp --> ApplyJokers[Joker mengamati ScoreContext<br/>Modifier Chips/Mult]
+    ApplyJokers --> CalcScore[Hitung finalScore = chips * mult]
+    CalcScore --> UpdateRuntime[Tambah finalScore ke blindScore<br/>remainingHands -= 1]
+    UpdateRuntime --> DestroyTemp[Hancurkan ScoreContext]
+    DestroyTemp --> PlayLoop
+    
+    PlayLoop -- Discard --> UpdateDiscard[remainingDiscards -= 1]
+    UpdateDiscard --> PlayLoop
+    
+    PlayLoop -- blindScore >= targetScore --> Victory[Menang Blind]
+    PlayLoop -- remainingHands == 0 & blindScore < targetScore --> Defeat([Game Over / Kalah])
+    
+    ChooseBlind -- Skip Blind --> QueueReward[Buat RewardCommand<br/>Masukkan ke pendingCommands]
+    QueueReward --> NextStateTransition[Transisi currentBlind.nextState]
+    
+    Victory --> CalcReward[Hitung Reward Gold]
+    CalcReward --> AddMoney[Tambah Gold ke PersistentState.money]
+    AddMoney --> NextStateTransition
+    
+    NextStateTransition --> TriggerCommands[Eksekusi pendingCommands cocok<br/>NextBlind / NextAnte]
+    TriggerCommands --> ResetRuntime[Hancurkan BlindRuntimeState]
+    ResetRuntime --> ChooseBlind
+```
+
+---
+
 ## Pemetaan State ke Kode Konkret
 
 Model pembagian layer state dalam dokumen ini diwujudkan secara nyata dalam kode program melalui kelas-kelas berikut:
 
 1. **Persistent State** (`ante`, `money`, `jokers`, `pendingCommands`, `currentBlind`) dikelola oleh kelas [RunPersistentState](file:///D:/CODE/C++/Kel.DesignPattern/include/state/RunPersistentState.h).
 2. **Runtime State** (`blindScore`, `remainingHands`, `remainingDiscards`) dikapsulasi di dalam kelas [BlindRuntimeState](file:///D:/CODE/C++/Kel.DesignPattern/include/state/BlindRuntimeState.h).
-3. **Temporary State** during hand play diwakili secara langsung oleh [ScoreContext](file:///D:/CODE/C++/Kel.DesignPattern/include/state/ScoreContext.h) yang dilewatkan ke modifier Joker dan hancur segera setelah scoring selesai.
+3. **Temporary State** selama hand play diwakili secara langsung oleh [ScoreContext](file:///D:/CODE/C++/Kel.DesignPattern/include/state/ScoreContext.h) yang dilewatkan ke modifier Joker dan hancur segera setelah scoring selesai.
 4. **Composite State Root** mengomposisi keduanya di dalam [RunSessionState](file:///D:/CODE/C++/Kel.DesignPattern/include/state/RunSessionState.h).
+
