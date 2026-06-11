@@ -4,19 +4,23 @@
   font-weight: 400;
 
   color-scheme: dark;
-  --bg-color: #0b0f14;
-  --felt-color: #0c2317;
-  --felt-gradient: radial-gradient(circle, #103422 0%, #08160e 100%);
+  --bg-color: #050709;
+  --felt-color: #07150e;
+  --felt-gradient: radial-gradient(circle at 50% 50%, #0d281a 0%, #050e09 100%);
   --neon-red: #ff3366;
-  --neon-red-glow: 0 0 15px rgba(255, 51, 102, 0.4);
-  --neon-blue: #00ccff;
-  --neon-blue-glow: 0 0 15px rgba(0, 204, 255, 0.4);
-  --neon-gold: #ffcc00;
-  --neon-gold-glow: 0 0 15px rgba(255, 204, 0, 0.4);
-  --glass-bg: rgba(255, 255, 255, 0.03);
+  --neon-red-glow: 0 0 12px rgba(255, 51, 102, 0.45), 0 0 25px rgba(255, 51, 102, 0.15);
+  --neon-blue: #00e5ff;
+  --neon-blue-glow: 0 0 12px rgba(0, 229, 255, 0.45), 0 0 25px rgba(0, 229, 255, 0.15);
+  --neon-gold: #ffbb00;
+  --neon-gold-glow: 0 0 12px rgba(255, 187, 0, 0.45), 0 0 25px rgba(255, 187, 0, 0.15);
+  --chip-color: #26b9ff;
+  --mult-color: #ff3366;
+  --glass-bg: rgba(10, 20, 15, 0.65);
   --glass-border: rgba(255, 255, 255, 0.08);
-  --text-primary: #f3f4f6;
+  --glass-border-hover: rgba(255, 255, 255, 0.18);
+  --text-primary: #f9fafb;
   --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
   
   font-synthesis: none;
   text-rendering: optimizeLegibility;

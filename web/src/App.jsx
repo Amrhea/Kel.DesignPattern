@@ -127,6 +127,18 @@ export default function App() {
       game.jokers.forEach(jk => jokersList.push(jk.name));
     }
 
+    // Get Tags
+    const tagsList = [];
+    if (typeof game.getTagCount === 'function') {
+      const tagCount = game.getTagCount();
+      for (let i = 0; i < tagCount; i++) {
+        tagsList.push({
+          name: game.getTagName(i),
+          desc: game.getTagDescription(i)
+        });
+      }
+    }
+
     // Get Hand Level stats
     const handScores = {};
     const possibleHands = [
@@ -161,6 +173,7 @@ export default function App() {
       inShop,
       gameOver,
       jokers: jokersList,
+      tags: tagsList,
       handScores
     }));
   };
@@ -366,6 +379,26 @@ export default function App() {
             </div>
           </div>
 
+          {/* Active Tags Section */}
+          <div className="panel-section section-tags">
+            <h3>ACTIVE TAGS ({gameState.tags?.length || 0})</h3>
+            <div className="tags-list">
+              {gameState.tags && gameState.tags.length > 0 ? (
+                gameState.tags.map((tag, idx) => (
+                  <div key={idx} className="tag-card-item">
+                    <span className="tag-icon">🏷️</span>
+                    <div className="tag-details">
+                      <span className="tag-name">{tag.name}</span>
+                      <span className="tag-desc">{tag.desc}</span>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="empty-state">No active tags. Skip blinds to earn tags!</div>
+              )}
+            </div>
+          </div>
+
           {/* Upgraded Hands Levels */}
           <div className="panel-section section-hands">
             <h3>POKER HAND LEVELS</h3>
@@ -376,7 +409,9 @@ export default function App() {
                     <span className="hand-name">{handName}</span>
                     <div className="hand-badges">
                       <span className="lvl-badge">Lvl {data.level}</span>
-                      <span className="score-badge">{data.baseChips} x {data.baseMult}</span>
+                      <span className="score-badge">
+                        <span className="chips-part">{data.baseChips}</span> x <span className="mult-part">{data.baseMult}</span>
+                      </span>
                     </div>
                   </div>
                 ))
@@ -412,21 +447,28 @@ export default function App() {
               
               <div className="shop-shelf">
                 {gameState.shopItems.length > 0 ? (
-                  gameState.shopItems.map((item, idx) => (
-                    <div key={idx} className="shop-item-card glass-panel">
-                      <div className="item-art">⚡</div>
-                      <div className="item-details">
-                        <p className="item-description">{item.desc}</p>
+                  gameState.shopItems.map((item, idx) => {
+                    const cleanDesc = item.desc.replace(/\s*\(Price:\s*\$\d+\)/i, '');
+                    const isPlanet = item.desc.toLowerCase().includes('planet') || item.desc.toLowerCase().includes('upgrade');
+                    const isJoker = item.desc.toLowerCase().includes('joker');
+                    const itemEmoji = isPlanet ? '🪐' : isJoker ? '🃏' : '⚡';
+                    
+                    return (
+                      <div key={idx} className="shop-item-card glass-panel">
+                        <div className="item-art">{itemEmoji}</div>
+                        <div className="item-details">
+                          <p className="item-description">{cleanDesc}</p>
+                        </div>
+                        <button 
+                          className={`btn btn-buy ${gameState.gold < item.price ? 'btn-disabled' : ''}`}
+                          onClick={() => handleBuyShopItem(item.index)}
+                          disabled={gameState.gold < item.price}
+                        >
+                          Buy for ${item.price}
+                        </button>
                       </div>
-                      <button 
-                        className={`btn btn-buy ${gameState.gold < item.price ? 'btn-disabled' : ''}`}
-                        onClick={() => handleBuyShopItem(item.index)}
-                        disabled={gameState.gold < item.price}
-                      >
-                        Buy for ${item.price}
-                      </button>
-                    </div>
-                  ))
+                    );
+                  })
                 ) : (
                   <div className="empty-shelf">Shop is empty!</div>
                 )}
@@ -444,7 +486,10 @@ export default function App() {
                   gameState.blindName.includes("Small") ? 'glow-blue' : 
                   gameState.blindName.includes("Big") ? 'glow-gold' : 'glow-red'
                 }`}>
-                  <span className="blind-symbol">👁️</span>
+                  <span className="blind-symbol">
+                    {gameState.blindName.includes("Small") ? '🔹' : 
+                     gameState.blindName.includes("Big") ? '🔸' : '💀'}
+                  </span>
                   <h3>{gameState.blindName}</h3>
                 </div>
                 

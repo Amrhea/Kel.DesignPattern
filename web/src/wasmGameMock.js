@@ -6,11 +6,8 @@ export class WasmGameMock {
         this.ante = 1;
         this.gold = 4;
         this.deck = [];
-        this.jokers = [
-            { name: "ChipsBoostJoker", bonus: 20 },
-            { name: "MultiplierJoker", bonus: 2 },
-            { name: "ConditionalJoker", target: "Flush", bonus: 15 }
-        ];
+        this.jokers = [];
+        this.tagStack = [];
         this.handScores = {
             "High Card": { level: 1, baseChips: 5, baseMult: 1 },
             "Pair": { level: 1, baseChips: 10, baseMult: 2 },
@@ -115,13 +112,22 @@ export class WasmGameMock {
 
     skipBlind() {
         if (this.inRound) return;
-        const reward = "Double Tag";
+        let tagName = "Handy Tag";
+        let tagDesc = "+1 Hands Limit next blind.";
+        if (this.getBlindName() === "Big Blind") {
+            tagName = "Economy Tag";
+            tagDesc = "+$5 Gold in next shop.";
+        } else if (this.getBlindName() === "Boss Blind") {
+            tagName = "Orbital Tag";
+            tagDesc = "Upgrades a random poker hand level.";
+        }
+        
+        this.tagStack.push({ name: tagName, desc: tagDesc });
         this.addLog(`Skipping blind: ${this.getBlindName()}`);
-        this.addLog(`[Reward queued: Skip reward - ${reward}]`);
+        this.addLog(`[Tag obtained: ${tagName} (${tagDesc})]`);
         
         // Advance blind
         this.advanceBlindState();
-        this.generateShop();
     }
 
     advanceBlindState() {
@@ -355,6 +361,10 @@ export class WasmGameMock {
         }
         return false;
     }
+
+    getTagCount() { return this.tagStack ? this.tagStack.length : 0; }
+    getTagName(idx) { return this.tagStack && this.tagStack[idx] ? this.tagStack[idx].name : ""; }
+    getTagDescription(idx) { return this.tagStack && this.tagStack[idx] ? this.tagStack[idx].desc : ""; }
 
     getLogCount() { return this.logs.length; }
     getLog(idx) { return this.logs[idx] || ""; }

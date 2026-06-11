@@ -95,6 +95,24 @@ public:
     int getBlindTargetScore() const { return anteManager->GetTargetScore(); }
     int getBlindRewardMoney() const { return anteManager->GetRewardMoney(); }
 
+    int getTagCount() const {
+        return session ? session->tagStack.size() : 0;
+    }
+
+    std::string getTagName(int idx) const {
+        if (session && idx >= 0 && idx < (int)session->tagStack.size()) {
+            return session->tagStack[idx]->getName();
+        }
+        return "";
+    }
+
+    std::string getTagDescription(int idx) const {
+        if (session && idx >= 0 && idx < (int)session->tagStack.size()) {
+            return session->tagStack[idx]->getDescription();
+        }
+        return "";
+    }
+
     // Hand score live state
     int getHandLevel(std::string name) const {
         auto it = session->handScores.find(parseHandType(name));
@@ -319,6 +337,9 @@ EMSCRIPTEN_BINDINGS(wasm_game) {
         .method("getHandLevel", &WasmGame::getHandLevel)
         .method("getHandBaseChips", &WasmGame::getHandBaseChips)
         .method("getHandBaseMult", &WasmGame::getHandBaseMult)
+        .method("getTagCount", &WasmGame::getTagCount)
+        .method("getTagName", &WasmGame::getTagName)
+        .method("getTagDescription", &WasmGame::getTagDescription)
         .method("skipBlind", &WasmGame::skipBlind)
         .method("startRound", &WasmGame::startRound)
         .method("getHand", &WasmGame::getHand)

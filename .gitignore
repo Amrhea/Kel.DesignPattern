@@ -70,6 +70,7 @@ Testing/
 .vscode/
 .windsurf/
 .antigravitycli/
+.github/
 
 # DOCS
 AGENTS.md
