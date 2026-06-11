@@ -80,18 +80,19 @@ classDiagram
     IPokerHandChecker --> IPokerHandChecker : nextChecker
 ```
 
-### Subsystem D & E: Scoring & Jokers (Template Method & Observer Pattern)
-- **Template Method (`ScoreCalculator`)**: Menetapkan kerangka algoritma perhitungan skor:
+### Subsystem D & E: Scoring & Jokers (Template Method, Observer, & Factory Pattern)
+- **Template Method (`ScoreCalculator`)**: Menetapkan kerangka perhitungan skor:
   1. Deteksi hand type (`CheckPokerHand`).
-  2. Ambil skor dasar (`GetBaseScore` - chips & mult).
+  2. Ambil skor dasar (`GetBaseScore`).
   3. Beri kesempatan observer Joker mengubah skor dasar (`ModifyScore`).
-- **Observer (`JokerManager` & `JokerCard`)**: `JokerManager` bertindak sebagai *Subject*, sedangkan kartu Joker sebagai *Observer*. Saat evaluasi skor, GameManager memanggil `JokerManager::NotifyObservers(ScoreContext&)` untuk memicu fungsi `apply()` pada setiap Joker aktif guna memodifikasi multiplier/chips secara berurutan.
+- **Observer (`JokerManager` & `Joker`)**: `JokerManager` bertindak sebagai *Subject*, sedangkan kartu Joker (mewarisi `Joker` abstract interface) bertindak sebagai *Observer*. Saat evaluasi skor, GameManager memanggil `JokerManager::NotifyObservers(ScoreContext&)` untuk memicu fungsi `apply()` pada setiap Joker aktif secara berurutan.
+- **Factory Method (`JokerFactory`)**: Mengontrol pembuatan Joker secara dinamis (seperti `ChipsBoostJoker`, `MultBoostJoker`, `FlushMultJoker`, `JokerCard`) untuk shop inventory.
 
 ```mermaid
 sequenceDiagram
     participant SC as ScoreCalculator
     participant JM as JokerManager
-    participant J as JokerCard (Observer)
+    participant J as Joker (Observer)
     SC->>JM: NotifyObservers(ScoreContext)
     JM->>J: apply(ScoreContext)
     Note over J: Modifikasi context.chips & context.mult
@@ -105,14 +106,15 @@ Mengatur progresi blind permainan tanpa kondisional `if-else` bertumpuk.
 - **Transisi**: Beralih secara otomatis dari `Small` → `Big` → `Boss` → `Small` (sembari meningkatkan Ante level).
 - **Class**: `BlindState` (Base), `SmallBlindState`, `BigBlindState`, `BossBlindState`.
 
-### Subsystem G: Skip Reward Commands (Command Pattern with Deferred Execution)
-Ketika pemain memutuskan untuk melompati (skip) level Blind tertentu, sistem tidak langsung mengeksekusi efek reward secara instan.
-- **Mekanisme**: Reward dibungkus ke dalam command konkret (misal `BonusHandCommand`, `FreePlayingCardCommand`) lalu disimpan di antrean `pendingCommands` di dalam `RunPersistentState`.
-- **Eksekusi**: Antrean dipicu untuk dieksekusi secara tertunda pada event tertentu seperti `NextBlind` atau `NextAnte`.
+### Subsystem G: Skip Tag System (Factory Pattern & Tag Stack)
+Ketika pemain memutuskan untuk melompati (skip) level Blind, pemain mendapatkan sebuah **Tag** yang disimpan di dalam stack (`tagStack`).
+- **Mekanisme**: Setiap blind memberikan tag berbeda (Small Blind -> Handy Tag, Big Blind -> Economy Tag, Boss Blind -> Orbital Tag). Instansiasi tag dipisahkan menggunakan `TagFactory`.
+- **Eksekusi**: Tag serupa yang saling bertumpuk (stack) akan dieksekusi secara bersamaan ketika event pemicunya terjadi (`NEXT_BLIND`, `ENTER_SHOP`, `NEXT_ANTE`). Setelah dieksekusi, tag dihapus dari stack.
+- **Class**: `Tag` (Abstract Base), `TagFactory`, `HandyTag`, `EconomyTag`, `OrbitalTag`.
 
 ### Subsystem H & I: Runtime State Separation & GameManager (Facade & Singleton)
 Memisahkan state game berdasarkan masa hidupnya (lifetime):
-1. **Persistent State (`RunPersistentState`)**: Hidup sepanjang seluruh sesi bermain (satu run). Menyimpan `money`, `ante`, list `jokers`, `currentBlind`, dan `pendingCommands`.
+1. **Persistent State (`RunPersistentState`)**: Hidup sepanjang seluruh sesi bermain (satu run). Menyimpan `money`, `ante`, list `jokers`, `currentBlind`, `pendingCommands`, dan `tagStack`.
 2. **Runtime State (`BlindRuntimeState`)**: Dibuat ulang setiap kali memasuki blind baru. Menyimpan sisa nyawa main (`remainingHands`), sisa discard (`remainingDiscards`), dan perolehan skor sementara (`blindScore`).
 3. **Temporary State (`ScoreContext`)**: Dialokasikan murni di **stack** hanya saat satu tangan kartu dievaluasi. Setelah kalkulasi selesai, objek langsung dihancurkan.
 4. **Composite State Root (`RunSessionState`)**: Mengelompokkan `RunPersistentState` dan `BlindRuntimeState`.

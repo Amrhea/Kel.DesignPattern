@@ -2,6 +2,19 @@
 
 Semua perubahan penting dalam proyek **Kel.DesignPattern** akan didokumentasikan di sini.
 
+## [Released] - 2026-06-12
+
+### Ditambahkan
+- **Skip Tag System (Subsystem blind/reward/tag)**: Mekanisme tag skip blind (seperti Balatro) menggunakan pola **Factory Method** via `TagFactory`. Menambahkan abstract class `Tag` dan concrete classes `HandyTag`, `EconomyTag`, dan `OrbitalTag`.
+- **Joker Factory (Subsystem joker)**: Pola **Factory Method** via `JokerFactory` untuk generate random Jokers di toko/shop.
+- Unit test baru `tests/test_tags.cpp` untuk menguji fungsionalitas Skip Tag stack.
+
+### Diubah
+- Refaktorisasi `JokerCard` agar mewarisi abstract class `Joker` sebagai interface utama, bukan langsung `Observer`.
+- Menghapus starting jokers bawaan di awal permainan sehingga pemain memulai blind pertama (blind 1, ante 1) tanpa Joker sama sekali.
+- Peningkatan TUI di `main_tui.cpp` untuk menampilkan stack tag aktif secara visual di panel status blind selection.
+- Sinkronisasi pemanggilan `ShopSystem::GenerateInventory` dengan menyertakan referensi `RuntimeSession` untuk pengecekan data runtime.
+
 ## [Released] - 2026-05-30
 
 ### Ditambahkan (PR #37)
