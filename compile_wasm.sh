@@ -14,6 +14,8 @@ SOURCES=(
     src/joker/JokerCard.cpp
     src/joker/JokerManager.cpp
     src/joker/MultBoostJoker.cpp
+    src/joker/JokerFactory.cpp
+    src/tag/TagFactory.cpp
     src/poker_evaluation/PokerHandEvaluator.cpp
     src/poker_evaluation/checker/FiveOfKindChecker.cpp
     src/poker_evaluation/checker/FlushChecker.cpp

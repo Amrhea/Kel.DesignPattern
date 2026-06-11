@@ -17,6 +17,7 @@ RoundManager::RoundManager() {
 
 RoundManager::~RoundManager() {}
 
+// Round == Blind
 bool RoundManager::RunRound(RuntimeSession& session, const BlindData& blindData) {
     std::cout << "\n=== ROUND START: " << blindData.name << " ===" << std::endl;
     std::cout << "Target Score: " << blindData.targetScore << std::endl;

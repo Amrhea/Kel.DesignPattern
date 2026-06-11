@@ -95,8 +95,9 @@ Observer adalah behavioral design pattern yang mendefinisikan mekanisme ketergan
 
 ### C. Implementasi Kelas
 * [Observer](file:///D:/CODE/C++/Kel.DesignPattern/include/joker/Observer.h): Interface abstrak dengan metode virtual `apply(ScoreContext& context)`.
+* [Joker](file:///D:/CODE/C++/Kel.DesignPattern/include/joker/Joker.h): Abstract class sebagai interface utama Joker yang mewarisi `Observer` dan mendeklarasikan `getName() const`.
 * [Subject](file:///D:/CODE/C++/Kel.DesignPattern/include/joker/Subject.h): Mengelola list `Observer*` dengan fungsi `RegisterObserver`, `RemoveObserver`, dan `NotifyObservers`.
-* [JokerCard](file:///D:/CODE/C++/Kel.DesignPattern/include/joker/JokerCard.h): Kelas konkret turunan `Observer` yang menyimpan informasi nama Joker dan mengimplementasikan metode `apply` untuk memodifikasi skor.
+* [JokerCard](file:///D:/CODE/C++/Kel.DesignPattern/include/joker/JokerCard.h): Kelas konkret turunan `Joker` yang menyimpan informasi nama Joker dan mengimplementasikan metode `apply` untuk memodifikasi skor.
 * [JokerManager](file:///D:/CODE/C++/Kel.DesignPattern/include/joker/JokerManager.h): Turunan `Subject` berbentuk Singleton yang mengoordinasikan pendaftaran dan notifikasi observer Joker.
 
 ### D. Diagram Mermaid
@@ -115,6 +116,11 @@ classDiagram
     class Observer {
         <<interface>>
         +apply(ScoreContext& context)* void
+    }
+
+    class Joker {
+        <<interface>>
+        +getName()* std::string
     }
 
     class Subject {
@@ -137,7 +143,8 @@ classDiagram
     }
 
     Subject <|-- JokerManager
-    Observer <|-- JokerCard
+    Observer <|-- Joker
+    Joker <|-- JokerCard
     Subject --> Observer : observers
     JokerCard ..> ScoreContext : modifies
 ```
@@ -464,4 +471,63 @@ classDiagram
         +RunSession() void
     }
     GameManager --> GameManager : instance (static)
+```
+
+---
+
+## 8. Factory Pattern (Pembangkit Tag & Joker Dinamis)
+
+### A. Deskripsi Teoretis
+Factory Pattern (khususnya Simple Factory / Factory Method) adalah creational design pattern yang menyediakan interface untuk membuat objek di dalam superclass, tetapi memungkinkan subclass untuk mengubah jenis objek yang akan dibuat. Ini mendecouple logika pembuatan instansi objek dari kode klien yang menggunakannya.
+
+### B. Masalah & Solusi (Konteks Proyek)
+* **Masalah**: Proyek membutuhkan pembentukan objek skip blind `Tag` yang bervariasi (`HandyTag`, `EconomyTag`, `OrbitalTag`) serta objek `Joker` yang bervariasi (`ChipsBoostJoker`, `MultBoostJoker`, `FlushMultJoker`, `JokerCard`) secara dinamis (acak atau bersyarat) saat runtime. Jika instansiasi dilakukan secara manual di dalam kelas sesi atau toko (`RuntimeSession` / `ShopSystem`), maka kelas-kelas tersebut akan mengalami ketergantungan yang sangat ketat (tight coupling) dengan kelas konkret objek-objek tersebut.
+* **Solusi**: Dibuat kelas generator `TagFactory` dan `JokerFactory` yang membungkus logika pembuatan objek berdasarkan parameter `enum` tipe objek. Klien cukup memanggil fungsi factory static (`CreateTag()` atau `CreateJoker()`), dan factory akan mengembalikan pointer abstrak tipe dasar (`std::shared_ptr<Tag>` atau `std::shared_ptr<Joker>`).
+
+### C. Implementasi Kelas
+* [TagFactory.h](file:///D:/CODE/C++/Kel.DesignPattern/include/tag/TagFactory.h) / [TagFactory.cpp](file:///D:/CODE/C++/Kel.DesignPattern/src/tag/TagFactory.cpp): Mengontrol pembentukan objek skip blind `Tag` concretes.
+* [JokerFactory.h](file:///D:/CODE/C++/Kel.DesignPattern/include/joker/JokerFactory.h) / [JokerFactory.cpp](file:///D:/CODE/C++/Kel.DesignPattern/src/joker/JokerFactory.cpp): Mengontrol pembentukan objek modifier `Joker` concretes.
+
+### D. Diagram Mermaid
+```mermaid
+classDiagram
+    class Tag {
+        <<interface>>
+        +getName()* std::string
+        +getDescription()* std::string
+        +getTrigger()* TagTrigger
+        +execute(RuntimeSession& session)* void
+    }
+    class HandyTag { +execute() }
+    class EconomyTag { +execute() }
+    class OrbitalTag { +execute() }
+    class TagFactory {
+        +CreateTag(TagType type)$ std::shared_ptr~Tag~
+        +CreateRandomTag()$ std::shared_ptr~Tag~
+    }
+
+    Tag <|-- HandyTag
+    Tag <|-- EconomyTag
+    Tag <|-- OrbitalTag
+    TagFactory ..> Tag : creates
+
+    class Joker {
+        <<interface>>
+        +apply(ScoreContext& context)* void
+        +getName()* std::string
+    }
+    class ChipsBoostJoker { +apply() }
+    class MultBoostJoker { +apply() }
+    class FlushMultJoker { +apply() }
+    class JokerCard { +apply() }
+    class JokerFactory {
+        +CreateJoker(JokerType type)$ std::shared_ptr~Joker~
+        +CreateRandomJoker()$ std::shared_ptr~Joker~
+    }
+
+    Joker <|-- ChipsBoostJoker
+    Joker <|-- MultBoostJoker
+    Joker <|-- FlushMultJoker
+    Joker <|-- JokerCard
+    JokerFactory ..> Joker : creates
 ```

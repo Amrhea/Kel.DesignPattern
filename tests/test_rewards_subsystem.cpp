@@ -41,7 +41,7 @@ TEST_CASE("ShopSystem buying items", "[shop]") {
     session.gold = 10;
     
     ShopSystem shop;
-    shop.GenerateInventory();
+    shop.GenerateInventory(session);
     
     auto inventory = shop.GetInventory();
     REQUIRE(inventory.size() == 3);
@@ -59,7 +59,7 @@ TEST_CASE("ShopSystem cannot buy if not enough gold", "[shop]") {
     session.gold = 0;
     
     ShopSystem shop;
-    shop.GenerateInventory();
+    shop.GenerateInventory(session);
     
     bool success = shop.BuyItem(0, session);
     

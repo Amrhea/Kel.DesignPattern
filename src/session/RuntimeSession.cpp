@@ -3,6 +3,7 @@
 #include "blind/SmallBlindState.h"
 #include "reward/RewardCommand.h"
 #include "card/Deck.h"
+#include "tag/TagFactory.h"
 
 RuntimeSession::RuntimeSession() 
     : sessionState(),
@@ -11,6 +12,7 @@ RuntimeSession::RuntimeSession()
       gold(sessionState.persistentState.money),
       currentBlind(sessionState.persistentState.currentBlind),
       pendingCommands(sessionState.persistentState.pendingCommands),
+      tagStack(sessionState.persistentState.tagStack),
       jokers(sessionState.persistentState.jokers) {
     
     currentBlind = std::make_shared<SmallBlindState>();
@@ -78,11 +80,22 @@ std::vector<std::string> RuntimeSession::executePendingCommands(const std::strin
 std::vector<std::string> RuntimeSession::skipBlind() {
     std::vector<std::string> logs;
     if (!currentBlind) return logs;
-    auto cmd = currentBlind->createSkipRewardCommand();
-    if (cmd) {
-        pendingCommands.push_back(cmd);
-        logs.push_back("[Reward queued: " + cmd->getName() + " (timing: " + cmd->getTiming() + ")]");
+    
+    // Obtain Tag based on current blind skipped
+    std::shared_ptr<Tag> tag;
+    if (currentBlind->getName() == "Small Blind") {
+        tag = TagFactory::CreateTag(TagType::HANDY);
+    } else if (currentBlind->getName() == "Big Blind") {
+        tag = TagFactory::CreateTag(TagType::ECONOMY);
+    } else {
+        tag = TagFactory::CreateTag(TagType::ORBITAL);
     }
+    
+    if (tag) {
+        tagStack.push_back(tag);
+        logs.push_back("[Tag obtained: " + tag->getName() + " (" + tag->getDescription() + ")]");
+    }
+    
     int oldAnte = ante;
     logs.push_back("Advancing to next blind..."); // General advancement message
     currentBlind = currentBlind->nextState(ante);
@@ -90,11 +103,19 @@ std::vector<std::string> RuntimeSession::skipBlind() {
     logs.push_back("[Executing NextBlind commands...]");
     auto nextBlindLogs = executePendingCommands("NextBlind");
     logs.insert(logs.end(), nextBlindLogs.begin(), nextBlindLogs.end());
+    
+    // Trigger NEXT_BLIND tags
+    auto tagLogs = triggerTags(TagTrigger::NEXT_BLIND);
+    logs.insert(logs.end(), tagLogs.begin(), tagLogs.end());
 
     if (ante > oldAnte) {
         logs.push_back("[Executing NextAnte commands...]");
         auto nextAnteLogs = executePendingCommands("NextAnte");
         logs.insert(logs.end(), nextAnteLogs.begin(), nextAnteLogs.end());
+        
+        // Trigger NEXT_ANTE tags
+        auto anteTagLogs = triggerTags(TagTrigger::NEXT_ANTE);
+        logs.insert(logs.end(), anteTagLogs.begin(), anteTagLogs.end());
     }
     return logs;
 }
@@ -109,11 +130,34 @@ std::vector<std::string> RuntimeSession::playBlind() {
     logs.push_back("[Executing NextBlind commands...]");
     auto nextBlindLogs = executePendingCommands("NextBlind");
     logs.insert(logs.end(), nextBlindLogs.begin(), nextBlindLogs.end());
+    
+    // Trigger NEXT_BLIND tags
+    auto tagLogs = triggerTags(TagTrigger::NEXT_BLIND);
+    logs.insert(logs.end(), tagLogs.begin(), tagLogs.end());
 
     if (ante > oldAnte) {
         logs.push_back("[Executing NextAnte commands...]");
         auto nextAnteLogs = executePendingCommands("NextAnte");
         logs.insert(logs.end(), nextAnteLogs.begin(), nextAnteLogs.end());
+        
+        // Trigger NEXT_ANTE tags
+        auto anteTagLogs = triggerTags(TagTrigger::NEXT_ANTE);
+        logs.insert(logs.end(), anteTagLogs.begin(), anteTagLogs.end());
     }
+    return logs;
+}
+
+std::vector<std::string> RuntimeSession::triggerTags(TagTrigger trigger) {
+    std::vector<std::string> logs;
+    std::vector<std::shared_ptr<Tag>> remaining;
+    for (auto& tag : tagStack) {
+        if (tag && tag->getTrigger() == trigger) {
+            tag->execute(*this);
+            logs.push_back("[Tag Triggered: " + tag->getName() + " - " + tag->getDescription() + "]");
+        } else {
+            remaining.push_back(tag);
+        }
+    }
+    tagStack = std::move(remaining);
     return logs;
 }

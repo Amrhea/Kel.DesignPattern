@@ -54,22 +54,22 @@ TEST_CASE("Reward Command Tests", "[reward]") {
 }
 
 TEST_CASE("Integration Tests", "[integration]") {
-    SECTION("Skip SmallBlind -> command queued -> advance to BigBlind -> NextBlind trigger executes command") {
+    SECTION("Skip SmallBlind -> tag queued -> advance to BigBlind -> NextBlind trigger executes tag") {
         RuntimeSession session;
         REQUIRE(session.currentBlind->getName() == "Small Blind");
         REQUIRE(session.remainingPlays == 4);
 
         session.skipBlind(); // Skips Small Blind, transitions to Big Blind
         // During skipBlind():
-        // 1. BonusHandCommand is queued.
+        // 1. HandyTag is added to tagStack.
         // 2. State advances to Big Blind.
-        // 3. executePendingCommands("NextBlind") runs.
+        // 3. triggerTags(TagTrigger::NEXT_BLIND) runs.
         REQUIRE(session.currentBlind->getName() == "Big Blind");
-        REQUIRE(session.remainingPlays == 5); // +1 play from command
-        REQUIRE(session.pendingCommands.size() == 0);
+        REQUIRE(session.remainingPlays == 5); // +1 play from tag
+        REQUIRE(session.tagStack.size() == 0);
     }
 
-    SECTION("Skip BossBlind -> ante increments -> NextAnte trigger executes NextAnte commands") {
+    SECTION("Skip BossBlind -> ante increments -> NextAnte trigger executes NextAnte tags") {
         RuntimeSession session;
         // Move to Boss Blind
         session.playBlind(); // to Big
@@ -77,20 +77,13 @@ TEST_CASE("Integration Tests", "[integration]") {
         REQUIRE(session.currentBlind->getName() == "Boss Blind");
         REQUIRE(session.ante == 1);
 
-        // Queue a NextAnte command manually to verify NextAnte trigger works
-        auto cmd = std::make_shared<FreePlayingCardCommand>(); // NextAnte
-        session.pendingCommands.push_back(cmd);
-
         session.skipBlind(); // Skips Boss Blind, transitions to Small Blind (Ante 2)
         // During skipBlind():
-        // 1. Skips Boss Blind (queues FreePlayingCardCommand).
+        // 1. Skips Boss Blind (adds OrbitalTag).
         // 2. Advances to Small Blind, ante becomes 2.
-        // 3. executePendingCommands("NextBlind") runs (nothing to execute).
-        // 4. Since ante increased, executePendingCommands("NextAnte") runs.
+        // 3. Since ante increased, triggerTags(TagTrigger::NEXT_ANTE) runs.
         REQUIRE(session.currentBlind->getName() == "Small Blind");
         REQUIRE(session.ante == 2);
-        // FreePlayingCardCommand executed twice (one manual, one from skipping Boss Blind)
-        REQUIRE(session.deck.size() == 2);
-        REQUIRE(session.pendingCommands.size() == 0);
+        REQUIRE(session.tagStack.size() == 0);
     }
 }

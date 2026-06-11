@@ -35,8 +35,9 @@ D:\CODE\C++\Kel.DesignPattern\
 │   ├── run/                      # GameManager, AnteManager, RoundManager
 │   ├── scoring/                  # Template Method & Scoring Rule
 │   ├── session/                  # Sesi Runtime Game
-│   └── state/                    # Pemisahan State (Persistent, Runtime, Temporary)
-├── src/                          # Folder Implementasi untuk 9 Subsystem
+│   ├── state/                    # Pemisahan State (Persistent, Runtime, Temporary)
+│   └── tag/                      # Skip Blind Tags (Factory & Stack)
+├── src/                          # Folder Implementasi untuk 10 Subsystem
 │   ├── blind/
 │   ├── hand_selection/
 │   ├── joker/
@@ -45,6 +46,7 @@ D:\CODE\C++\Kel.DesignPattern\
 │   ├── run/
 │   ├── scoring/
 │   ├── state/
+│   ├── tag/
 │   └── main.cpp                  # Entry point minimal (bootstrap GameManager)
 ├── docs/                         # Diagram & Analisis
 ├── tests/                        # Unit & Integration Tests (Catch2)
@@ -59,6 +61,7 @@ D:\CODE\C++\Kel.DesignPattern\
 │   ├── test_runtime_state.cpp
 │   ├── test_score_context.cpp
 │   ├── test_boundary_enforcement.cpp
+│   ├── test_tags.cpp
 │   └── test_run_integration.cpp
 ├── CMakeLists.txt
 ├── .gitignore
@@ -104,6 +107,12 @@ Skip reward diimplementasikan menggunakan Command Pattern dengan deferred queue.
 ### 7. Singleton Pattern
 
 `GameManager` diimplementasikan sebagai Singleton guna memastikan satu-satunya pengontrol sesi permainan yang diakses secara global via `GameManager::GetInstance()`.
+
+### 8. Factory Pattern (Tag & Joker Generation)
+
+Digunakan untuk menstandardisasi instansiasi objek dinamis:
+- `TagFactory` memproduksi instance `Tag` skip blind (`HandyTag`, `EconomyTag`, `OrbitalTag`) secara dinamis.
+- `JokerFactory` memproduksi berbagai varian `Joker` (`ChipsBoostJoker`, `MultBoostJoker`, `FlushMultJoker`, `JokerCard`) secara dinamis untuk inventory toko/shop.
 
 
 ## Cara Menjalankan
