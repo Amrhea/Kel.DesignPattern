@@ -186,7 +186,7 @@ void GameManager::HandleReward() {
 void GameManager::HandleShop() {
     std::cout << "\n--- Entering Shop ---" << std::endl;
     ShopSystem shop;
-    shop.GenerateInventory();
+    shop.GenerateInventory(*session);
     
     while (true) {
         std::cout << "\nPlayer Gold: $" << session->gold << std::endl;

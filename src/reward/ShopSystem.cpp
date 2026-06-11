@@ -1,9 +1,10 @@
 #include "reward/ShopSystem.h"
 #include "reward/PlanetCardCommand.h"
 #include "reward/JokerRewardCommand.h"
+#include "joker/JokerFactory.h"
 #include <cstdlib>
 
-void ShopSystem::GenerateInventory() {
+void ShopSystem::GenerateInventory(RuntimeSession& session) {
     currentInventory.clear();
     
     // Randomly generate 3 items
@@ -14,7 +15,7 @@ void ShopSystem::GenerateInventory() {
             auto cmd = std::make_shared<PlanetCardCommand>(hand, 15, 2);
             currentInventory.emplace_back(cmd, 3, "Upgrade " + cmd->getName());
         } else {
-            auto joker = std::make_shared<JokerCard>("Shop Joker", 25);
+            auto joker = JokerFactory::CreateRandomJoker();
             auto cmd = std::make_shared<JokerRewardCommand>(joker);
             currentInventory.emplace_back(cmd, 4, "Buy " + joker->getName());
         }

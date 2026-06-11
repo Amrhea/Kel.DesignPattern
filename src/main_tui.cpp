@@ -193,12 +193,42 @@ void HandleSelectBlindTUI(RuntimeSession& session, AnteManager& anteManager, TUI
             log_elements.push_back(text("No logs yet."));
         }
 
+        Elements tag_elements;
+        tag_elements.push_back(text("Tags Stack:") | bold);
+        if (session.tagStack.empty()) {
+            tag_elements.push_back(text("  None") | dim);
+        } else {
+            std::vector<std::string> unique_tag_names;
+            std::vector<int> unique_tag_counts;
+            for (const auto& tag : session.tagStack) {
+                if (tag) {
+                    auto it = std::find(unique_tag_names.begin(), unique_tag_names.end(), tag->getName());
+                    if (it != unique_tag_names.end()) {
+                        int index = std::distance(unique_tag_names.begin(), it);
+                        unique_tag_counts[index]++;
+                    } else {
+                        unique_tag_names.push_back(tag->getName());
+                        unique_tag_counts.push_back(1);
+                    }
+                }
+            }
+            for (size_t i = 0; i < unique_tag_names.size(); ++i) {
+                std::string tag_str = "  - " + unique_tag_names[i];
+                if (unique_tag_counts[i] > 1) {
+                    tag_str += " [x" + std::to_string(unique_tag_counts[i]) + "]";
+                }
+                tag_elements.push_back(text(tag_str) | color(Color::GreenLight));
+            }
+        }
+
         auto stats_panel = vbox({
             hbox({ text("Ante: ") | bold, text(std::to_string(current_ante)) | color(Color::Cyan) }),
             hbox({ text("Active Blind: ") | bold, text(blind_name) | color(Color::Magenta) }),
             hbox({ text("Target Score: ") | bold, text(std::to_string(target_score)) | color(Color::Yellow) }),
             hbox({ text("Reward Money: ") | bold, text("$" + std::to_string(reward_money)) | color(Color::Green) }),
             hbox({ text("Your Gold: ") | bold, text("$" + std::to_string(session.gold)) | color(Color::Green) }),
+            separator(),
+            vbox(std::move(tag_elements))
         }) | border | size(WIDTH, EQUAL, 40);
 
         auto log_panel = vbox({
@@ -546,8 +576,12 @@ void HandleRewardTUI(RuntimeSession& session, AnteManager& anteManager, TUIState
 void HandleShopTUI(RuntimeSession& session, AnteManager& anteManager, TUIState& state, std::vector<std::string>& game_logs) {
     auto screen = ScreenInteractive::TerminalOutput();
     
+    // Trigger ENTER_SHOP tags
+    auto tagLogs = session.triggerTags(TagTrigger::ENTER_SHOP);
+    game_logs.insert(game_logs.end(), tagLogs.begin(), tagLogs.end());
+    
     ShopSystem shop;
-    shop.GenerateInventory();
+    shop.GenerateInventory(session);
     
     int selected = 0;
     
@@ -658,15 +692,8 @@ int main() {
                 session = std::make_unique<RuntimeSession>();
                 anteManager = std::make_unique<AnteManager>(*session);
                 
-                session->addJoker(std::make_shared<ChipsBoostJoker>(20));
-                session->addJoker(std::make_shared<MultiplierJoker>(2));
-                session->addJoker(std::make_shared<ConditionalJoker>(PokerHandType::Flush, 15));
-
                 JokerManager& jokerManager = JokerManager::GetInstance();
                 jokerManager.ClearObservers();
-                for (auto& joker : session->jokers) {
-                    jokerManager.RegisterObserver(joker.get());
-                }
 
                 game_logs.clear();
                 game_logs.push_back("Started new run.");

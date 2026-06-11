@@ -12,9 +12,10 @@ include_directories(tests)
 # Mencari semua file .cpp di folder src dan sub-direktorinya secara otomatis
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 
-# Hapus main.cpp dan main_tui.cpp dari daftar SOURCES untuk target lain
+# Hapus main.cpp, main_tui.cpp, dan bindings.cpp dari daftar SOURCES untuk target lain
 list(FILTER SOURCES EXCLUDE REGEX "src/main.cpp")
 list(FILTER SOURCES EXCLUDE REGEX "src/main_tui.cpp")
+list(FILTER SOURCES EXCLUDE REGEX "src/web/.*")
 
 # Option untuk build TUI secara opsional
 option(BUILD_TUI "Build TUI version with FTXUI" OFF)
@@ -54,6 +55,7 @@ add_executable(TestRunner
     tests/test_runtime_state.cpp
     tests/test_score_context.cpp
     tests/test_boundary_enforcement.cpp
+    tests/test_tags.cpp
     ${SOURCES}
 )
 

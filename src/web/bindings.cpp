@@ -64,17 +64,9 @@ public:
         session = std::make_shared<RuntimeSession>();
         anteManager = std::make_shared<AnteManager>(*session);
         
-        // Initial jokers
-        session->addJoker(std::make_shared<ChipsBoostJoker>(20));
-        session->addJoker(std::make_shared<MultiplierJoker>(2));
-        session->addJoker(std::make_shared<ConditionalJoker>(PokerHandType::Flush, 15));
-
-        // Register starting jokers
+        // Start with no jokers in blind 1, ante 1
         JokerManager& jokerManager = JokerManager::GetInstance();
         jokerManager.ClearObservers();
-        for (auto& joker : session->jokers) {
-            jokerManager.RegisterObserver(joker.get());
-        }
         
         inRound = false;
         logs.clear();
@@ -222,11 +214,11 @@ public:
             session->addGold(reward);
             addLog("Round won! Gained $" + std::to_string(reward));
             // Advance to next blind
-            auto advanceLogs = anteManager->Skip();
+            auto advanceLogs = anteManager->Advance();
             for (const auto& l : advanceLogs) {
                 addLog(l);
             }
-            shop.GenerateInventory(); // Generate shop items
+            shop.GenerateInventory(*session); // Generate shop items
         } else if (roundHandsRemaining <= 0) {
             inRound = false;
             addLog("Game Over! Failed to reach target score.");
@@ -258,7 +250,7 @@ public:
 
     // Shop operations
     void generateShop() {
-        shop.GenerateInventory();
+        shop.GenerateInventory(*session);
     }
 
     int getShopItemCount() const {

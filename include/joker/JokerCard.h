@@ -1,8 +1,8 @@
 #pragma once
-#include "joker/Observer.h"
+#include "joker/Joker.h"
 #include <string>
 
-class JokerCard : public Observer {
+class JokerCard : public Joker {
 private:
     std::string name;
     int bonusPoints;
@@ -10,5 +10,5 @@ private:
 public:
     JokerCard(const std::string& name, int bonusPoints);
     void apply(ScoreContext& context) override;
-    std::string getName() const;
+    std::string getName() const override;
 };

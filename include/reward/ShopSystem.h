@@ -19,7 +19,7 @@ private:
     std::vector<ShopItem> currentInventory;
 
 public:
-    void GenerateInventory();
+    void GenerateInventory(RuntimeSession& session);
     const std::vector<ShopItem>& GetInventory() const;
     bool BuyItem(int index, RuntimeSession& session);
 };
